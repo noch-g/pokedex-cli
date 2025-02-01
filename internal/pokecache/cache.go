@@ -47,11 +47,11 @@ func (c *Cache) reapLoop(interval time.Duration) {
 	}
 }
 
-func (c *Cache) reap(now time.Time, last time.Duration) {
+func (c *Cache) reap(now time.Time, interval time.Duration) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	for k, v := range c.cacheMap {
-		if v.createdAt.Before(now.Add(-last)) {
+		if v.createdAt.Before(now.Add(-interval)) {
 			delete(c.cacheMap, k)
 		}
 	}
