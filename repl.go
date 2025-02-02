@@ -29,7 +29,7 @@ func startRepl(cfg *config) {
 		fmt.Print("Pokedex > ")
 
 		// Read user input with terminal settings to detect arrow keys
-		input, err := readInput(reader, &history, &historyIndex)
+		input, err := readInput(reader, &history, &historyIndex, commands)
 		if err != nil {
 			fmt.Println("\nExiting REPL...")
 			break
@@ -68,7 +68,7 @@ func startFromClearLine() {
 	fmt.Print("\r\033[K")
 }
 
-func readInput(reader *bufio.Reader, history *[]string, historyIndex *int) (string, error) {
+func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, commands map[string]cliCommand) (string, error) {
 	// Switch terminal to raw mode
 	oldState, err := term.MakeRaw(int(syscall.Stdin))
 	if err != nil {
@@ -95,7 +95,7 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int) (stri
 			break
 		}
 
-		// Handle Up Arrow Key (ASCII sequence: "\x1b[A")
+		// Handle Up and Down Arrow Keys
 		if char == 27 {
 			next, _ := reader.ReadByte()
 			if next == 91 {
@@ -129,6 +129,34 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int) (stri
 				input.Reset()
 				input.WriteString(str[:len(str)-1]) // Supprime le dernier caractère
 				fmt.Print("\b \b")                  // Efface visuellement
+			}
+			continue
+		}
+
+		// Handle tab for auto-completion
+		if char == 9 {
+			currentInput := input.String()
+			suggestions := []string{}
+
+			// Check commands starting with current input
+			for cmd := range commands {
+				if strings.HasPrefix(cmd, currentInput) {
+					suggestions = append(suggestions, cmd)
+				}
+			}
+
+			if len(suggestions) == 1 {
+				input.Reset()
+				input.WriteString(suggestions[0] + " ")
+				fmt.Print("\r\033[K" + "Pokedex > " + suggestions[0] + " ")
+				continue
+			}
+
+			if len(suggestions) > 1 {
+				fmt.Println()
+				fmt.Println("\r\033[K" + strings.Join(suggestions, ", "))
+				fmt.Print("\r\033[K" + "Pokedex > " + currentInput)
+				continue
 			}
 			continue
 		}
