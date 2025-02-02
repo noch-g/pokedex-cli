@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -12,7 +13,7 @@ import (
 )
 
 type config struct {
-	caughtPokemon    map[string]pokeapi.Pokemon
+	CaughtPokemon    map[string]pokeapi.Pokemon `json:"pokemons"`
 	pokeapiClient    pokeapi.Client
 	nextLocationsURL *string
 	prevLocationsURL *string
@@ -224,4 +225,41 @@ func getCommands() map[string]cliCommand {
 			callback:    commandPokedex,
 		},
 	}
+}
+
+func (cfg *config) Save(filename string) error {
+	file, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	encoder := json.NewEncoder(file)
+	err = encoder.Encode(cfg)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Configuration saved successfully.")
+	return nil
+}
+
+func (cfg *config) Load(filename string) error {
+	file, err := os.Open(filename)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return err
+	}
+	defer file.Close()
+
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(cfg)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Configuration loaded successfully.")
+	return nil
 }

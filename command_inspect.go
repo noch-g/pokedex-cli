@@ -11,7 +11,7 @@ func commandInspect(cfg *config, args ...string) error {
 	}
 	pokemonName := args[0]
 
-	pokemon, ok := cfg.caughtPokemon[pokemonName]
+	pokemon, ok := cfg.CaughtPokemon[pokemonName]
 	if !ok {
 		fmt.Printf("You have not caught a %v yet\n", pokemonName)
 		return nil
