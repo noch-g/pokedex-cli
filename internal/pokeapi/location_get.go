@@ -2,7 +2,6 @@ package pokeapi
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 )
@@ -12,7 +11,6 @@ func (c *Client) GetLocation(locationName string) (Location, error) {
 
 	// Check cache before request
 	if val, ok := c.cache.Get(url); ok {
-		fmt.Println("Using cache")
 		locationResp := Location{}
 		err := json.Unmarshal(val, &locationResp)
 		if err != nil {
@@ -43,7 +41,6 @@ func (c *Client) GetLocation(locationName string) (Location, error) {
 		return Location{}, err
 	}
 
-	fmt.Println("Storing value in cache before returning")
 	c.cache.Add(url, dat)
 	return locationResp, nil
 }

@@ -2,7 +2,6 @@ package pokeapi
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 )
@@ -12,7 +11,6 @@ func (c *Client) GetPokemon(pokemonName string) (Pokemon, error) {
 
 	// Check cache before request
 	if val, ok := c.cache.Get(url); ok {
-		fmt.Println("Using cache")
 		pokemonResp := Pokemon{}
 		err := json.Unmarshal(val, &pokemonResp)
 		if err != nil {
@@ -43,7 +41,6 @@ func (c *Client) GetPokemon(pokemonName string) (Pokemon, error) {
 		return Pokemon{}, err
 	}
 
-	fmt.Println("Storing value in cache before returning")
 	c.cache.Add(url, dat)
 	return pokemonResp, nil
 }

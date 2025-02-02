@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"syscall"
 
 	"github.com/noch-g/pokedex-cli/internal/pokeapi"
+	"golang.org/x/term"
 )
 
 type config struct {
@@ -17,33 +19,126 @@ type config struct {
 }
 
 func startRepl(cfg *config) {
-	reader := bufio.NewScanner(os.Stdin)
-	for {
-		fmt.Print("Pokedex > ")
-		reader.Scan()
+	reader := bufio.NewReader(os.Stdin)
+	commands := getCommands()
+	var history []string
+	historyIndex := -1
 
-		words := cleanInput(reader.Text())
+	for {
+		startFromClearLine()
+		fmt.Print("Pokedex > ")
+
+		// Read user input with terminal settings to detect arrow keys
+		input, err := readInput(reader, &history, &historyIndex)
+		if err != nil {
+			fmt.Println("\nExiting REPL...")
+			break
+		}
+		// fmt.Println("Input detected: " + input)
+
+		words := cleanInput(input)
 		if len(words) == 0 {
 			continue
 		}
+
+		// Store command in history
+		history = append(history, input)
+		historyIndex = len(history)
+
 		args := []string{}
 		if len(words) > 1 {
 			args = words[1:]
 		}
 		commandName := words[0]
 
-		command, exists := getCommands()[commandName]
+		command, exists := commands[commandName]
+		startFromClearLine()
 		if exists {
 			err := command.callback(cfg, args...)
 			if err != nil {
 				fmt.Println(err)
 			}
-			continue
 		} else {
-			fmt.Println("Unknown command")
-			continue
+			fmt.Printf("Unknown command: \"%s\"\n", commandName)
 		}
 	}
+}
+
+func startFromClearLine() {
+	fmt.Print("\r\033[K")
+}
+
+func readInput(reader *bufio.Reader, history *[]string, historyIndex *int) (string, error) {
+	// Switch terminal to raw mode
+	oldState, err := term.MakeRaw(int(syscall.Stdin))
+	if err != nil {
+		return "", err
+	}
+	defer term.Restore(int(syscall.Stdin), oldState)
+
+	var input strings.Builder
+
+	for {
+		char, err := reader.ReadByte()
+		if err != nil {
+			return "", err
+		}
+
+		// Handle Ctrl+C and Ctrl+D
+		if char == 3 || char == 4 {
+			return "", fmt.Errorf("Exiting")
+		}
+
+		// Handle Enter key
+		if char == 10 || char == 13 {
+			fmt.Printf("\n")
+			break
+		}
+
+		// Handle Up Arrow Key (ASCII sequence: "\x1b[A")
+		if char == 27 {
+			next, _ := reader.ReadByte()
+			if next == 91 {
+				key, _ := reader.ReadByte()
+				if key == 65 && len(*history) > 0 { // Up Arrow Pressed
+					if *historyIndex > 0 {
+						*historyIndex--
+					}
+				} else if key == 66 && len(*history) > 0 { // Down Arrow  (↓)
+					if *historyIndex < len(*history)-1 {
+						*historyIndex++
+					} else {
+						*historyIndex = len(*history) - 1 // Effacer l’entrée courante
+					}
+				} else {
+					continue
+				}
+
+				startFromClearLine()
+				fmt.Print("\rPokedex > " + (*history)[*historyIndex])
+				input.Reset()
+				input.WriteString((*history)[*historyIndex])
+				continue
+			}
+		}
+
+		// Handle Backspace (←)
+		if char == 127 {
+			if input.Len() > 0 {
+				str := input.String()
+				input.Reset()
+				input.WriteString(str[:len(str)-1]) // Supprime le dernier caractère
+				fmt.Print("\b \b")                  // Efface visuellement
+			}
+			continue
+		}
+
+		// Append character to input
+		input.WriteByte(char)
+		fmt.Print(string(char))
+	}
+
+	return input.String(), nil
 }
 
 func cleanInput(text string) []string {
