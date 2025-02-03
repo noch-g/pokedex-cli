@@ -14,8 +14,17 @@ func commandMapf(cfg *config, args ...string) error {
 	cfg.nextLocationsURL = locationsResp.Next
 	cfg.prevLocationsURL = locationsResp.Previous
 
+	searchedPokemons, err := getSearchedPokemons(cfg, 1, 151)
+	if err != nil {
+		return err
+	}
+
 	for _, loc := range locationsResp.Results {
-		fmt.Println(loc.Name)
+		if locationContainsNew(cfg, loc.Name, searchedPokemons) {
+			fmt.Println(ToBold(loc.Name))
+		} else {
+			fmt.Println(loc.Name)
+		}
 	}
 	return nil
 }
@@ -33,8 +42,45 @@ func commandMapb(cfg *config, args ...string) error {
 	cfg.nextLocationsURL = locationResp.Next
 	cfg.prevLocationsURL = locationResp.Previous
 
+	searchedPokemons, err := getSearchedPokemons(cfg, 1, 151)
+	if err != nil {
+		return err
+	}
+
 	for _, loc := range locationResp.Results {
-		fmt.Println(loc.Name)
+		if locationContainsNew(cfg, loc.Name, searchedPokemons) {
+			fmt.Println(ToBold(loc.Name))
+		} else {
+			fmt.Println(loc.Name)
+		}
 	}
 	return nil
+}
+
+func getSearchedPokemons(cfg *config, start, end int) (map[string]struct{}, error) {
+	respPokeons, err := cfg.pokeapiClient.GetPokemonList(start, end)
+	if err != nil {
+		return nil, fmt.Errorf("could not retrieve searched pokemons: %v", err)
+	}
+	searchedPokemons := map[string]struct{}{}
+	for _, p := range respPokeons.Results {
+		searchedPokemons[p.Name] = struct{}{}
+	}
+	return searchedPokemons, nil
+}
+
+func locationContainsNew(cfg *config, locationStr string, searchedPokemons map[string]struct{}) bool {
+	loc, err := cfg.pokeapiClient.GetLocation(locationStr)
+	if err != nil {
+		return false
+	}
+
+	for _, pokemon_encounter := range loc.PokemonEncounters {
+		if _, ok := cfg.CaughtPokemon[pokemon_encounter.Pokemon.Name]; !ok {
+			if _, ok := searchedPokemons[pokemon_encounter.Pokemon.Name]; ok {
+				return true
+			}
+		}
+	}
+	return false
 }

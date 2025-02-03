@@ -1,5 +1,15 @@
 package pokeapi
 
+type RespPokemons struct {
+	Count    int     `json:"count"`
+	Next     *string `json:"next"`
+	Previous *string `json:"previous"`
+	Results  []struct {
+		Name string `json:"name"`
+		URL  string `json:"url"`
+	} `json:"results"`
+}
+
 // Pokemon -
 type Pokemon struct {
 	Abilities []struct {
