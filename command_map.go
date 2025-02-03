@@ -50,12 +50,12 @@ func commandMap(cfg *config, goForward bool) error {
 }
 
 func getSearchedPokemons(cfg *config, start, end int) (map[string]struct{}, error) {
-	respPokeons, err := cfg.pokeapiClient.GetPokemonList(start, end)
+	respPokemons, err := cfg.pokeapiClient.GetPokemonList(start, end)
 	if err != nil {
 		return nil, fmt.Errorf("could not retrieve searched pokemons: %v", err)
 	}
 	searchedPokemons := map[string]struct{}{}
-	for _, p := range respPokeons.Results {
+	for _, p := range respPokemons.Results {
 		searchedPokemons[p.Name] = struct{}{}
 	}
 	return searchedPokemons, nil

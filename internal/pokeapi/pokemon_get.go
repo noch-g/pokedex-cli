@@ -2,6 +2,7 @@ package pokeapi
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 )
@@ -29,6 +30,10 @@ func (c *Client) GetPokemon(pokemonName string) (Pokemon, error) {
 		return Pokemon{}, err
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode == 404 {
+		return Pokemon{}, fmt.Errorf("pokemon %s doesn't seem to exist", pokemonName)
+	}
 
 	dat, err := io.ReadAll(resp.Body)
 	if err != nil {
