@@ -19,7 +19,6 @@ func startRepl(cfg *config) {
 	for {
 		fmt.Print(GetPromptMessage())
 
-		// Read user input with terminal settings to detect arrow keys
 		input, err := readInput(reader, &history, &historyIndex, cfg.knownEntities)
 		if err != nil {
 			commands["exit"].callback(cfg)
@@ -31,7 +30,6 @@ func startRepl(cfg *config) {
 			continue
 		}
 
-		// Store command in history
 		history = append(history, input)
 		historyIndex = len(history)
 
@@ -88,7 +86,7 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, known
 			next, _ := reader.ReadByte()
 			if next == 91 {
 				key, _ := reader.ReadByte()
-				if key == 65 && len(*history) > 0 { // Up Arrow Pressed
+				if key == 65 && len(*history) > 0 { // Up Arrow (↑)
 					if *historyIndex > 0 {
 						*historyIndex--
 					}
@@ -96,7 +94,7 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, known
 					if *historyIndex < len(*history)-1 {
 						*historyIndex++
 					} else {
-						*historyIndex = len(*history) - 1 // Effacer l’entrée courante
+						*historyIndex = len(*history) - 1
 					}
 				} else {
 					continue
@@ -114,8 +112,8 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, known
 			if input.Len() > 0 {
 				str := input.String()
 				input.Reset()
-				input.WriteString(str[:len(str)-1]) // Supprime le dernier caractère
-				fmt.Print("\b \b")                  // Efface visuellement
+				input.WriteString(str[:len(str)-1])
+				fmt.Print("\b \b")
 			}
 			continue
 		}

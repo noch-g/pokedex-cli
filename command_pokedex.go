@@ -16,7 +16,6 @@ func commandPokedex(cfg *config, args ...string) error {
 	const columns = 5
 	const rows = int((151 + columns) / columns)
 
-	// Create a table with correct dimensions
 	table := make([][]string, rows)
 	for i := range table {
 		table[i] = make([]string, columns)
@@ -26,7 +25,7 @@ func commandPokedex(cfg *config, args ...string) error {
 	for _, pokemon := range cfg.CaughtPokemon {
 		i = pokemon.ID
 		if i > 151 {
-			// Skip for now
+			// Skip newer generations for now
 			continue
 		}
 
