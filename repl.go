@@ -168,31 +168,27 @@ func autocomplete(cmd string, strStart string, wordsDict []string, input *string
 			suggestions = append(suggestions, entity)
 		}
 	}
+	if len(suggestions) == 0 {
+		return
+	}
 
 	var newInput string
+	input.Reset()
+	if len(cmd) > 0 {
+		newInput += cmd + " "
+	}
+
 	if len(suggestions) == 1 {
-		input.Reset()
-		if len(cmd) > 0 {
-			newInput += cmd + " "
-		}
 		newInput += suggestions[0] + " "
-		input.WriteString(newInput)
-		fmt.Print(GetPromptMessage() + newInput)
 	} else if len(suggestions) > 1 {
 		fmt.Println()
-		StartFromClearLine()
 		for _, suggestion := range suggestions {
 			StartFromClearLine()
 			fmt.Println(suggestion)
 		}
-		prefix := LongestCommonPrefix(suggestions)
-
-		input.Reset()
-		if len(cmd) > 0 {
-			newInput += cmd + " "
-		}
-		newInput += prefix
-		input.WriteString(newInput)
-		fmt.Print(GetPromptMessage() + newInput)
+		newInput += LongestCommonPrefix(suggestions)
 	}
+
+	input.WriteString(newInput)
+	fmt.Print(GetPromptMessage() + newInput)
 }
