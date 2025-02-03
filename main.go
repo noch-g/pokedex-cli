@@ -11,10 +11,10 @@ func main() {
 	cfg := &config{
 		CaughtPokemon: map[string]pokeapi.Pokemon{},
 		knownEntities: map[string][]string{
-			"commands":     []string{},
-			"pokemons":     []string{},
-			"locations":    []string{},
-			"wildPokemons": []string{},
+			"commands":     {},
+			"pokemons":     {},
+			"locations":    {},
+			"wildPokemons": {},
 		},
 		pokeapiClient: pokeClient,
 	}
