@@ -17,8 +17,7 @@ func startRepl(cfg *config) {
 	historyIndex := -1
 
 	for {
-		startFromClearLine()
-		fmt.Print("Pokedex > ")
+		fmt.Print(GetPromptMessage())
 
 		// Read user input with terminal settings to detect arrow keys
 		input, err := readInput(reader, &history, &historyIndex, commands)
@@ -45,7 +44,7 @@ func startRepl(cfg *config) {
 		commandName := words[0]
 
 		command, exists := commands[commandName]
-		startFromClearLine()
+		StartFromClearLine()
 		if exists {
 			err := command.callback(cfg, args...)
 			if err != nil {
@@ -55,10 +54,6 @@ func startRepl(cfg *config) {
 			fmt.Printf("Unknown command: \"%s\"\n", commandName)
 		}
 	}
-}
-
-func startFromClearLine() {
-	fmt.Print("\r\033[K")
 }
 
 func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, commands map[string]cliCommand) (string, error) {
@@ -80,7 +75,7 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, comma
 		// Handle Ctrl+C and Ctrl+D
 		if char == 3 || char == 4 {
 			fmt.Printf("\n")
-			startFromClearLine()
+			StartFromClearLine()
 			return "", fmt.Errorf("Exiting")
 		}
 
@@ -109,8 +104,7 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, comma
 					continue
 				}
 
-				startFromClearLine()
-				fmt.Print("\rPokedex > " + (*history)[*historyIndex])
+				fmt.Print(GetPromptMessage() + (*history)[*historyIndex])
 				input.Reset()
 				input.WriteString((*history)[*historyIndex])
 				continue
@@ -143,14 +137,15 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, comma
 			if len(suggestions) == 1 {
 				input.Reset()
 				input.WriteString(suggestions[0] + " ")
-				fmt.Print("\r\033[K" + "Pokedex > " + suggestions[0] + " ")
+				fmt.Print(GetPromptMessage() + suggestions[0] + " ")
 				continue
 			}
 
 			if len(suggestions) > 1 {
 				fmt.Println()
-				fmt.Println("\r\033[K" + strings.Join(suggestions, ", "))
-				fmt.Print("\r\033[K" + "Pokedex > " + currentInput)
+				StartFromClearLine()
+				fmt.Println(strings.Join(suggestions, ", "))
+				fmt.Print(GetPromptMessage() + currentInput)
 				continue
 			}
 			continue
