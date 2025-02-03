@@ -63,7 +63,7 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, known
 	var input strings.Builder
 
 	for {
-		char, err := reader.ReadByte()
+		char, _, err := reader.ReadRune()
 		if err != nil {
 			return "", err
 		}
@@ -108,13 +108,11 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, known
 		}
 
 		// Handle Backspace (←)
-		if char == 127 {
-			if input.Len() > 0 {
-				str := input.String()
-				input.Reset()
-				input.WriteString(str[:len(str)-1])
-				fmt.Print("\b \b")
-			}
+		if char == 127 && input.Len() > 0 {
+			runes := []rune(input.String())
+			input.Reset()
+			input.WriteString(string(runes[:len(runes)-1]))
+			fmt.Print("\b \b")
 			continue
 		}
 
@@ -146,8 +144,8 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, known
 		}
 
 		// Append character to input
-		input.WriteByte(char)
-		fmt.Print(string(char))
+		input.WriteRune(char)
+		fmt.Printf("%s", string(char))
 	}
 
 	return input.String(), nil
