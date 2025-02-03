@@ -6,7 +6,26 @@ import (
 )
 
 func commandMapf(cfg *config, args ...string) error {
-	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.nextLocationsURL)
+	return commandMap(cfg, true)
+}
+
+func commandMapb(cfg *config, args ...string) error {
+	if cfg.prevLocationsURL == nil {
+		return errors.New("you're on the first page")
+	}
+
+	return commandMap(cfg, false)
+}
+
+func commandMap(cfg *config, goForward bool) error {
+	var next_url *string
+	if goForward {
+		next_url = cfg.nextLocationsURL
+	} else {
+		next_url = cfg.prevLocationsURL
+	}
+
+	locationsResp, err := cfg.pokeapiClient.ListLocations(next_url)
 	if err != nil {
 		return err
 	}
@@ -20,34 +39,6 @@ func commandMapf(cfg *config, args ...string) error {
 	}
 
 	for _, loc := range locationsResp.Results {
-		if locationContainsNew(cfg, loc.Name, searchedPokemons) {
-			fmt.Println(ToBold(loc.Name))
-		} else {
-			fmt.Println(loc.Name)
-		}
-	}
-	return nil
-}
-
-func commandMapb(cfg *config, args ...string) error {
-	if cfg.prevLocationsURL == nil {
-		return errors.New("you're on the first page")
-	}
-
-	locationResp, err := cfg.pokeapiClient.ListLocations(cfg.prevLocationsURL)
-	if err != nil {
-		return err
-	}
-
-	cfg.nextLocationsURL = locationResp.Next
-	cfg.prevLocationsURL = locationResp.Previous
-
-	searchedPokemons, err := getSearchedPokemons(cfg, 1, 151)
-	if err != nil {
-		return err
-	}
-
-	for _, loc := range locationResp.Results {
 		if locationContainsNew(cfg, loc.Name, searchedPokemons) {
 			fmt.Println(ToBold(loc.Name))
 		} else {
