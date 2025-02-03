@@ -25,14 +25,14 @@ func commandCatch(cfg *config, args ...string) error {
 		fmt.Printf("%s escaped!\n", pokemon.Name)
 		return nil
 	}
-	fmt.Printf("%s was caught!\n", pokemon.Name)
+	fmt.Printf("%s was caught! (#%03d)\n", pokemon.Name, pokemon.ID)
 	imgStr, err := cfg.pokeapiClient.RenderImage(&pokemon)
 	if err != nil {
 		fmt.Println("(Image could not be retrieved)")
 	} else {
 		fmt.Println(imgStr)
 	}
-	fmt.Printf("You may now inspect it with the inspect command.\n")
+	fmt.Printf("The information was added to the pokedex (#%03d). You may now inspect it with the inspect command.\n", pokemon.ID)
 
 	cfg.CaughtPokemon[pokemon.Name] = pokemon
 
