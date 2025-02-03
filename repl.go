@@ -2,22 +2,13 @@ package main
 
 import (
 	"bufio"
-	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
 	"syscall"
 
-	"github.com/noch-g/pokedex-cli/internal/pokeapi"
 	"golang.org/x/term"
 )
-
-type config struct {
-	CaughtPokemon    map[string]pokeapi.Pokemon `json:"pokemons"`
-	pokeapiClient    pokeapi.Client
-	nextLocationsURL *string
-	prevLocationsURL *string
-}
 
 func startRepl(cfg *config) {
 	reader := bufio.NewReader(os.Stdin)
@@ -32,7 +23,8 @@ func startRepl(cfg *config) {
 		// Read user input with terminal settings to detect arrow keys
 		input, err := readInput(reader, &history, &historyIndex, commands)
 		if err != nil {
-			fmt.Println("\nExiting REPL...")
+			// fmt.Println("\nExiting REPL...")
+			commands["exit"].callback(cfg)
 			break
 		}
 		// fmt.Println("Input detected: " + input)
@@ -87,6 +79,8 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, comma
 
 		// Handle Ctrl+C and Ctrl+D
 		if char == 3 || char == 4 {
+			fmt.Printf("\n")
+			startFromClearLine()
 			return "", fmt.Errorf("Exiting")
 		}
 
@@ -174,92 +168,4 @@ func cleanInput(text string) []string {
 	output := strings.ToLower(text)
 	words := strings.Fields(output)
 	return words
-}
-
-type cliCommand struct {
-	name        string
-	description string
-	callback    func(*config, ...string) error
-}
-
-func getCommands() map[string]cliCommand {
-	return map[string]cliCommand{
-		"help": {
-			name:        "help",
-			description: "Displays a help message",
-			callback:    commandHelp,
-		},
-		"map": {
-			name:        "map",
-			description: "Get the next page of locations",
-			callback:    commandMapf,
-		},
-		"mapb": {
-			name:        "mapb",
-			description: "Get the previous page of locations",
-			callback:    commandMapb,
-		},
-		"exit": {
-			name:        "exit",
-			description: "Exit the Pokedex",
-			callback:    commandExit,
-		},
-		"explore": {
-			name:        "explore <location_name>",
-			description: "Explore a location",
-			callback:    commandExplore,
-		},
-		"catch": {
-			name:        "catch <pokemon_name>",
-			description: "Attempt to catch a pokemon",
-			callback:    commandCatch,
-		},
-		"inspect": {
-			name:        "inspect <pokemon_name>",
-			description: "Inspect a pokemon that you have caught",
-			callback:    commandInspect,
-		},
-		"pokedex": {
-			name:        "pokedex",
-			description: "show the pokemons you have caught",
-			callback:    commandPokedex,
-		},
-	}
-}
-
-func (cfg *config) Save(filename string) error {
-	file, err := os.Create(filename)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	encoder := json.NewEncoder(file)
-	err = encoder.Encode(cfg)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println("Configuration saved successfully.")
-	return nil
-}
-
-func (cfg *config) Load(filename string) error {
-	file, err := os.Open(filename)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil
-		}
-		return err
-	}
-	defer file.Close()
-
-	decoder := json.NewDecoder(file)
-	err = decoder.Decode(cfg)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println("Configuration loaded successfully.")
-	return nil
 }
