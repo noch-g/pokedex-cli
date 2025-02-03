@@ -22,7 +22,16 @@ func commandExplore(cfg *config, args ...string) error {
 	} else {
 		fmt.Println("Found Pokemon:")
 		for _, pokemon_encounter := range loc.PokemonEncounters {
-			fmt.Println(" - " + pokemon_encounter.Pokemon.Name)
+			isNew := ""
+			if _, ok := cfg.CaughtPokemon[pokemon_encounter.Pokemon.Name]; !ok {
+				isNew = "(New!)"
+			}
+			pokemon, err := cfg.pokeapiClient.GetPokemon(pokemon_encounter.Pokemon.Name)
+			if err != nil {
+				fmt.Printf(" - %-10s", pokemon_encounter.Pokemon.Name)
+			} else {
+				fmt.Printf(" - %-10s #%03d %s\n", pokemon.Name, pokemon.ID, isNew)
+			}
 		}
 	}
 
