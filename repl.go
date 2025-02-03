@@ -20,13 +20,11 @@ func startRepl(cfg *config) {
 		fmt.Print(GetPromptMessage())
 
 		// Read user input with terminal settings to detect arrow keys
-		input, err := readInput(reader, &history, &historyIndex, commands)
+		input, err := readInput(reader, &history, &historyIndex, cfg.knownEntities)
 		if err != nil {
-			// fmt.Println("\nExiting REPL...")
 			commands["exit"].callback(cfg)
 			break
 		}
-		// fmt.Println("Input detected: " + input)
 
 		words := cleanInput(input)
 		if len(words) == 0 {
@@ -56,7 +54,7 @@ func startRepl(cfg *config) {
 	}
 }
 
-func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, commands map[string]cliCommand) (string, error) {
+func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, knownEntities map[string][]string) (string, error) {
 	// Switch terminal to raw mode
 	oldState, err := term.MakeRaw(int(syscall.Stdin))
 	if err != nil {
@@ -125,30 +123,28 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, comma
 		// Handle tab for auto-completion
 		if char == 9 {
 			currentInput := input.String()
-			suggestions := []string{}
+			wordsInput := cleanInput(currentInput)
 
-			// Check commands starting with current input
-			for cmd := range commands {
-				if strings.HasPrefix(cmd, currentInput) {
-					suggestions = append(suggestions, cmd)
+			if len(wordsInput) == 1 {
+				autocomplete("", wordsInput[0], knownEntities["commands"], &input)
+				continue
+			} else if len(wordsInput) == 2 {
+				switch wordsInput[0] {
+				case "explore":
+					autocomplete("explore", wordsInput[1], knownEntities["locations"], &input)
+					continue
+				case "inspect":
+					autocomplete("inspect", wordsInput[1], knownEntities["pokemons"], &input)
+					continue
+				case "catch":
+					autocomplete("catch", wordsInput[1], knownEntities["wildPokemons"], &input)
+					continue
+				default:
+					continue
 				}
-			}
-
-			if len(suggestions) == 1 {
-				input.Reset()
-				input.WriteString(suggestions[0] + " ")
-				fmt.Print(GetPromptMessage() + suggestions[0] + " ")
+			} else {
 				continue
 			}
-
-			if len(suggestions) > 1 {
-				fmt.Println()
-				StartFromClearLine()
-				fmt.Println(strings.Join(suggestions, ", "))
-				fmt.Print(GetPromptMessage() + currentInput)
-				continue
-			}
-			continue
 		}
 
 		// Append character to input
@@ -163,4 +159,40 @@ func cleanInput(text string) []string {
 	output := strings.ToLower(text)
 	words := strings.Fields(output)
 	return words
+}
+
+func autocomplete(cmd string, strStart string, wordsDict []string, input *strings.Builder) {
+	suggestions := []string{}
+	for _, entity := range wordsDict {
+		if strings.HasPrefix(entity, strStart) {
+			suggestions = append(suggestions, entity)
+		}
+	}
+
+	var newInput string
+	if len(suggestions) == 1 {
+		input.Reset()
+		if len(cmd) > 0 {
+			newInput += cmd + " "
+		}
+		newInput += suggestions[0] + " "
+		input.WriteString(newInput)
+		fmt.Print(GetPromptMessage() + newInput)
+	} else if len(suggestions) > 1 {
+		fmt.Println()
+		StartFromClearLine()
+		for _, suggestion := range suggestions {
+			StartFromClearLine()
+			fmt.Println(suggestion)
+		}
+		prefix := LongestCommonPrefix(suggestions)
+
+		input.Reset()
+		if len(cmd) > 0 {
+			newInput += cmd + " "
+		}
+		newInput += prefix
+		input.WriteString(newInput)
+		fmt.Print(GetPromptMessage() + newInput)
+	}
 }

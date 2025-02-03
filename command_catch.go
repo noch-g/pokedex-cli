@@ -32,9 +32,14 @@ func commandCatch(cfg *config, args ...string) error {
 	} else {
 		fmt.Println(imgStr)
 	}
-	fmt.Printf("The information was added to the pokedex (#%03d). You may now inspect it with the inspect command.\n", pokemon.ID)
 
-	cfg.CaughtPokemon[pokemon.Name] = pokemon
+	if _, ok := cfg.CaughtPokemon[pokemon.Name]; !ok {
+		fmt.Printf("The information was added to the pokedex (#%03d). You may now inspect it with the inspect command.\n", pokemon.ID)
+		cfg.CaughtPokemon[pokemon.Name] = pokemon
+		cfg.knownEntities["pokemons"] = append(cfg.knownEntities["pokemons"], pokemon.Name)
+	} else {
+		fmt.Printf("You already had a %s, but it's always nice to make a new friend !\n", pokemon.Name)
+	}
 
 	return nil
 }

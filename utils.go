@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 func GetPromptMessage() string {
 	return "\r\033[K" + ToBold("Pokedex > ")
@@ -12,4 +15,21 @@ func ToBold(s string) string {
 
 func StartFromClearLine() {
 	fmt.Print("\r\033[K")
+}
+
+func LongestCommonPrefix(words []string) string {
+	if len(words) == 0 {
+		return ""
+	}
+	prefix := words[0]
+
+	for _, word := range words[1:] {
+		for len(prefix) > 0 && len(word) > 0 && !strings.HasPrefix(word, prefix) {
+			prefix = prefix[:len(prefix)-1]
+		}
+		if prefix == "" {
+			return ""
+		}
+	}
+	return prefix
 }

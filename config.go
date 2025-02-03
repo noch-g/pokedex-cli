@@ -9,6 +9,7 @@ import (
 
 type config struct {
 	CaughtPokemon    map[string]pokeapi.Pokemon `json:"pokemons"`
+	knownEntities    map[string][]string
 	pokeapiClient    pokeapi.Client
 	nextLocationsURL *string
 	prevLocationsURL *string
@@ -44,6 +45,14 @@ func (cfg *config) Load(filename string) error {
 	err = decoder.Decode(cfg)
 	if err != nil {
 		return err
+	}
+	if len(cfg.CaughtPokemon) > 0 {
+		for pokemonName := range cfg.CaughtPokemon {
+			cfg.knownEntities["pokemons"] = append(cfg.knownEntities["pokemons"], pokemonName)
+		}
+	}
+	for cmd := range getCommands() {
+		cfg.knownEntities["commands"] = append(cfg.knownEntities["commands"], cmd)
 	}
 
 	return nil

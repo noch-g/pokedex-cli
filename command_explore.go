@@ -16,6 +16,7 @@ func commandExplore(cfg *config, args ...string) error {
 		return err
 	}
 	fmt.Println("Exploring " + locationStr + "...")
+	cfg.knownEntities["wildPokemons"] = []string{}
 	if len(loc.PokemonEncounters) == 0 {
 		fmt.Println("No pokemon present in this area")
 		return nil
@@ -32,6 +33,7 @@ func commandExplore(cfg *config, args ...string) error {
 			} else {
 				fmt.Printf(" - %-10s #%03d %s\n", pokemon.Name, pokemon.ID, isNew)
 			}
+			cfg.knownEntities["wildPokemons"] = append(cfg.knownEntities["wildPokemons"], pokemon_encounter.Pokemon.Name)
 		}
 	}
 

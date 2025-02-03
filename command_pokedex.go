@@ -35,7 +35,6 @@ func commandPokedex(cfg *config, args ...string) error {
 		table[row][col] = fmt.Sprintf("#%03d %-15s", i, strings.ToUpper(pokemon.Name[:1])+pokemon.Name[1:])
 	}
 
-	// Print row by row
 	for i, row := range table {
 		for j, entry := range row {
 			if entry != "" {

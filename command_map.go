@@ -37,13 +37,14 @@ func commandMap(cfg *config, goForward bool) error {
 	if err != nil {
 		return err
 	}
-
+	cfg.knownEntities["locations"] = []string{}
 	for _, loc := range locationsResp.Results {
 		if locationContainsNew(cfg, loc.Name, searchedPokemons) {
 			fmt.Println(ToBold(loc.Name))
 		} else {
 			fmt.Println(loc.Name)
 		}
+		cfg.knownEntities["locations"] = append(cfg.knownEntities["locations"], loc.Name)
 	}
 	return nil
 }
