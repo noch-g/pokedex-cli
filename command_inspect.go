@@ -16,9 +16,9 @@ func commandInspect(cfg *config, args ...string) error {
 		fmt.Printf("You have not caught a %v yet\n", pokemonName)
 		return nil
 	}
-	imgStr, err := cfg.pokeapiClient.RenderImage(pokemon.Sprites.Versions.GenerationI.RedBlue.FrontDefault)
+	imgStr, err := cfg.pokeapiClient.RenderImage(&pokemon)
 	if err != nil {
-		fmt.Println("Image could not be retrieved")
+		fmt.Println("(Image could not be retrieved)")
 	} else {
 		fmt.Println(imgStr)
 	}

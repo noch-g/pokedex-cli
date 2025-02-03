@@ -11,7 +11,9 @@ import (
 	"strings"
 )
 
-func (c *Client) RenderImage(imageUrl string) (string, error) {
+func (c *Client) RenderImage(pokemon *Pokemon) (string, error) {
+	imageUrl := pokemon.Sprites.Versions.GenerationI.RedBlue.FrontGray
+
 	img, err := c.downloadImage(imageUrl)
 	if err != nil {
 		return "", err

@@ -26,6 +26,12 @@ func commandCatch(cfg *config, args ...string) error {
 		return nil
 	}
 	fmt.Printf("%s was caught!\n", pokemon.Name)
+	imgStr, err := cfg.pokeapiClient.RenderImage(&pokemon)
+	if err != nil {
+		fmt.Println("(Image could not be retrieved)")
+	} else {
+		fmt.Println(imgStr)
+	}
 	fmt.Printf("You may now inspect it with the inspect command.\n")
 
 	cfg.CaughtPokemon[pokemon.Name] = pokemon
