@@ -2,16 +2,17 @@ package main
 
 import (
 	"fmt"
+	"io"
 )
 
-func commandHelp(cfg *config, args ...string) error {
-	fmt.Println()
-	fmt.Println("Welcome to the Pokedex!")
-	fmt.Println("Usage:")
-	fmt.Println()
+func commandHelp(cfg *config, output io.Writer, args ...string) error {
+	fmt.Fprintln(output)
+	fmt.Fprintln(output, "Welcome to the Pokedex!")
+	fmt.Fprintln(output, "Usage:")
+	fmt.Fprintln(output)
 	for _, cmd := range getCommands() {
-		fmt.Printf("%s: %s\n", cmd.name, cmd.description)
+		fmt.Fprintf(output, "%s: %s\n", cmd.name, cmd.description)
 	}
-	fmt.Println()
+	fmt.Fprintln(output)
 	return nil
 }

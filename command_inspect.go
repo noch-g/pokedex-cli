@@ -3,9 +3,10 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io"
 )
 
-func commandInspect(cfg *config, args ...string) error {
+func commandInspect(cfg *config, output io.Writer, args ...string) error {
 	if len(args) != 1 {
 		return errors.New("you must provide a pokemon name")
 	}
@@ -13,25 +14,25 @@ func commandInspect(cfg *config, args ...string) error {
 
 	pokemon, ok := cfg.CaughtPokemon[pokemonName]
 	if !ok {
-		fmt.Printf("You have not caught a %v yet\n", pokemonName)
+		fmt.Fprintf(output, "You have not caught a %v yet\n", pokemonName)
 		return nil
 	}
 	imgStr, err := cfg.pokeapiClient.RenderImage(&pokemon)
 	if err != nil {
-		fmt.Println("(Image could not be retrieved)")
+		fmt.Fprintln(output, "(Image could not be retrieved)")
 	} else {
-		fmt.Println(imgStr)
+		fmt.Fprintln(output, imgStr)
 	}
-	fmt.Printf("Name: %s\n", pokemon.Name)
-	fmt.Printf("Height: %v\n", pokemon.Height)
-	fmt.Printf("Weight: %v\n", pokemon.Weight)
-	fmt.Println("Stats:")
+	fmt.Fprintf(output, "Name: %s\n", pokemon.Name)
+	fmt.Fprintf(output, "Height: %v\n", pokemon.Height)
+	fmt.Fprintf(output, "Weight: %v\n", pokemon.Weight)
+	fmt.Fprintf(output, "Stats:")
 	for _, stat := range pokemon.Stats {
-		fmt.Printf("  -%s: %v\n", stat.Stat.Name, stat.BaseStat)
+		fmt.Fprintf(output, "  -%s: %v\n", stat.Stat.Name, stat.BaseStat)
 	}
-	fmt.Println("Types:")
+	fmt.Fprintln(output, "Types:")
 	for _, typeInfo := range pokemon.Types {
-		fmt.Printf("  - %s\n", typeInfo.Type.Name)
+		fmt.Fprintf(output, "  - %s\n", typeInfo.Type.Name)
 	}
 
 	return nil

@@ -2,16 +2,17 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"strings"
 )
 
-func commandPokedex(cfg *config, args ...string) error {
+func commandPokedex(cfg *config, output io.Writer, args ...string) error {
 	if len(cfg.CaughtPokemon) == 0 {
-		fmt.Println("Your pokedex is empty for now. Try to use the command catch <pokemon>")
+		fmt.Fprintln(output, "Your pokedex is empty for now. Try to use the command catch <pokemon>")
 		return nil
 	}
-	fmt.Printf("Your pokedex:\n")
-	fmt.Println()
+	fmt.Fprintf(output, "Your pokedex:\n")
+	fmt.Fprintln(output)
 
 	const columns = 5
 	const rows = int((151 + columns) / columns)
@@ -37,13 +38,13 @@ func commandPokedex(cfg *config, args ...string) error {
 	for i, row := range table {
 		for j, entry := range row {
 			if entry != "" {
-				fmt.Print(entry)
+				fmt.Fprintf(output, entry)
 			} else if (i+1)+j*rows <= 151 {
-				fmt.Printf("#%03d %-15s", (i+1)+j*rows, "   ???")
+				fmt.Fprintf(output, "#%03d %-15s", (i+1)+j*rows, "   ???")
 			}
 		}
-		fmt.Println()
+		fmt.Fprintln(output)
 	}
-	fmt.Println()
+	fmt.Fprintln(output)
 	return nil
 }

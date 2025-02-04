@@ -1,9 +1,11 @@
 package main
 
+import "io"
+
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*config, ...string) error
+	callback    func(*config, io.Writer, ...string) error
 }
 
 func getCommands() map[string]cliCommand {

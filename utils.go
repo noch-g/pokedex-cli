@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"strings"
 )
 
@@ -17,8 +18,8 @@ func ToBold(s string) string {
 	return "\033[1m" + s + "\033[0m"
 }
 
-func StartFromClearLine() {
-	fmt.Print("\r\033[K")
+func StartFromClearLine(output io.Writer) {
+	fmt.Fprintf(output, "\r\033[K")
 }
 
 func LongestCommonPrefix(words []string) string {

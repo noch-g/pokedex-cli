@@ -1,6 +1,22 @@
 package main
 
-import "testing"
+import (
+	"bytes"
+	"fmt"
+	"testing"
+)
+
+func TestStartRepl_ValidCommand(t *testing.T) {
+	cfg := &config{}
+	input := "help\nexit\n" // Simule l'entrée de l'utilisateur
+	in := bytes.NewBufferString(input)
+	out := new(bytes.Buffer)
+
+	startRepl(cfg, in, out)
+
+	result := out.String()
+	fmt.Println(result)
+}
 
 func TestCleanInput(t *testing.T) {
 	cases := []struct {

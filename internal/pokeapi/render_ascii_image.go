@@ -99,5 +99,5 @@ func generateASCII(img image.Image) string {
 		asciiArt.WriteString("\n")
 	}
 
-	return strings.TrimSuffix(asciiArt.String(), "\n")
+	return asciiArt.String()
 }

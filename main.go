@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"time"
 
 	"github.com/noch-g/pokedex-cli/internal/pokeapi"
@@ -19,5 +20,5 @@ func main() {
 		pokeapiClient: pokeClient,
 	}
 	cfg.Load("pokemons.json")
-	startRepl(cfg)
+	startRepl(cfg, os.Stdin, os.Stdout)
 }

@@ -3,34 +3,37 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"os"
+	"io"
 	"strings"
 	"syscall"
+	"testing"
 
 	"golang.org/x/term"
 )
 
-func startRepl(cfg *config) {
-	reader := bufio.NewReader(os.Stdin)
+func startRepl(cfg *config, input io.Reader, output io.Writer) {
+	reader := bufio.NewReader(input)
 	commands := getCommands()
 	var history []string
 	historyIndex := -1
 
 	for {
-		fmt.Print(GetPromptMessage())
+		fmt.Fprint(output, GetPromptMessage())
 
-		input, err := readInput(reader, &history, &historyIndex, cfg.knownEntities)
+		userInput, err := readInput(reader, &history, &historyIndex, cfg.knownEntities, output)
 		if err != nil {
-			commands["exit"].callback(cfg)
+			if err.Error() == "ctrl+C or ctrl+D called" {
+				commands["exit"].callback(cfg, output)
+			}
 			break
 		}
 
-		words := cleanInput(input)
+		words := cleanInput(userInput)
 		if len(words) == 0 {
 			continue
 		}
 
-		history = append(history, input)
+		history = append(history, userInput)
 		historyIndex = len(history)
 
 		args := []string{}
@@ -40,27 +43,28 @@ func startRepl(cfg *config) {
 		commandName := words[0]
 
 		command, exists := commands[commandName]
-		StartFromClearLine()
+		StartFromClearLine(output)
 		if exists {
-			err := command.callback(cfg, args...)
+			err := command.callback(cfg, output, args...)
 			if err != nil {
-				fmt.Println(err)
+				fmt.Fprintln(output, err)
 			}
 		} else {
-			fmt.Printf("Unknown command: \"%s\"\n", commandName)
+			fmt.Fprintf(output, "Unknown command: \"%s\"\n", commandName)
 		}
 	}
 }
 
-func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, knownEntities map[string][]string) (string, error) {
-	// Switch terminal to raw mode
-	oldState, err := term.MakeRaw(int(syscall.Stdin))
-	if err != nil {
-		return "", err
+func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, knownEntities map[string][]string, output io.Writer) (string, error) {
+	if !testing.Testing() {
+		oldState, err := term.MakeRaw(int(syscall.Stdin))
+		if err != nil {
+			return "", err
+		}
+		defer term.Restore(int(syscall.Stdin), oldState)
 	}
-	defer term.Restore(int(syscall.Stdin), oldState)
 
-	var input []rune
+	var inputSlice []rune
 	cursorPos := 0
 	for {
 		char, _, err := reader.ReadRune()
@@ -70,14 +74,14 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, known
 
 		// Handle Ctrl+C and Ctrl+D
 		if char == 3 || char == 4 {
-			fmt.Printf("\n")
-			StartFromClearLine()
-			return "", fmt.Errorf("Exiting")
+			fmt.Fprintf(output, "\n")
+			StartFromClearLine(output)
+			return "", fmt.Errorf("ctrl+C or ctrl+D called")
 		}
 
 		// Handle Enter key
 		if char == 10 || char == 13 {
-			fmt.Printf("\n")
+			fmt.Fprintf(output, "\n")
 			break
 		}
 
@@ -90,9 +94,9 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, known
 					if *historyIndex > 0 {
 						*historyIndex--
 					}
-					input = []rune((*history)[*historyIndex])
-					cursorPos = len(input)
-					redrawLine(input, cursorPos)
+					inputSlice = []rune((*history)[*historyIndex])
+					cursorPos = len(inputSlice)
+					redrawLine(inputSlice, cursorPos, output)
 					continue
 				} else if key == 66 && len(*history) > 0 { // Down Arrow  (↓)
 					if *historyIndex < len(*history)-1 {
@@ -100,20 +104,20 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, known
 					} else {
 						*historyIndex = len(*history) - 1
 					}
-					input = []rune((*history)[*historyIndex])
-					cursorPos = len(input)
-					redrawLine(input, cursorPos)
+					inputSlice = []rune((*history)[*historyIndex])
+					cursorPos = len(inputSlice)
+					redrawLine(inputSlice, cursorPos, output)
 					continue
 				} else if key == 67 { // Right Arrow (→)
-					if cursorPos < len(input) {
+					if cursorPos < len(inputSlice) {
 						cursorPos++
-						fmt.Print("\x1b[1C") // Move cursor to the right
+						fmt.Fprintf(output, "\x1b[1C") // Move cursor to the right
 					}
 					continue
 				} else if key == 68 { // Left Arrow (←)
 					if cursorPos > 0 {
 						cursorPos--
-						fmt.Print("\x1b[1D") // Move cursor to the left
+						fmt.Fprintf(output, "\x1b[1D") // Move cursor to the left
 					}
 					continue
 				}
@@ -122,30 +126,30 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, known
 
 		// Handle Backspace (←)
 		if char == 127 && cursorPos > 0 {
-			input = append(input[:cursorPos-1], input[cursorPos:]...)
+			inputSlice = append(inputSlice[:cursorPos-1], inputSlice[cursorPos:]...)
 			cursorPos--
-			redrawLine(input, cursorPos)
+			redrawLine(inputSlice, cursorPos, output)
 			continue
 		}
 
 		// Handle tab for auto-completion
 		if char == 9 {
-			currentInput := string(input)
+			currentInput := string(inputSlice)
 			wordsInput := cleanInput(currentInput)
 
 			if len(wordsInput) == 1 {
-				autocomplete("", wordsInput[0], knownEntities["commands"], &input, &cursorPos)
+				autocomplete("", wordsInput[0], knownEntities["commands"], &inputSlice, &cursorPos, output)
 				continue
 			} else if len(wordsInput) == 2 {
 				switch wordsInput[0] {
 				case "explore":
-					autocomplete("explore", wordsInput[1], knownEntities["locations"], &input, &cursorPos)
+					autocomplete("explore", wordsInput[1], knownEntities["locations"], &inputSlice, &cursorPos, output)
 					continue
 				case "inspect":
-					autocomplete("inspect", wordsInput[1], knownEntities["pokemons"], &input, &cursorPos)
+					autocomplete("inspect", wordsInput[1], knownEntities["pokemons"], &inputSlice, &cursorPos, output)
 					continue
 				case "catch":
-					autocomplete("catch", wordsInput[1], knownEntities["wildPokemons"], &input, &cursorPos)
+					autocomplete("catch", wordsInput[1], knownEntities["wildPokemons"], &inputSlice, &cursorPos, output)
 					continue
 				default:
 					continue
@@ -154,21 +158,21 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, known
 				continue
 			}
 		}
-		input = append(input[:cursorPos], append([]rune{char}, input[cursorPos:]...)...)
+		inputSlice = append(inputSlice[:cursorPos], append([]rune{char}, inputSlice[cursorPos:]...)...)
 		cursorPos++
-		redrawLine(input, cursorPos)
+		redrawLine(inputSlice, cursorPos, output)
 	}
 
-	return string(input), nil
+	return string(inputSlice), nil
 }
 
-func redrawLine(input []rune, cursorPos int) {
-	fmt.Print("\r" + GetPromptMessage() + string(input) + " \x1b[K")
-	placeCursor(cursorPos)
+func redrawLine(inputSlice []rune, cursorPos int, output io.Writer) {
+	fmt.Fprintf(output, "\r"+GetPromptMessage()+string(inputSlice)+" \x1b[K")
+	placeCursor(cursorPos, output)
 }
 
-func placeCursor(cursorPos int) {
-	fmt.Printf("\r\x1b[%dC", GetPromptLength()+cursorPos)
+func placeCursor(cursorPos int, output io.Writer) {
+	fmt.Fprintf(output, "\r\x1b[%dC", GetPromptLength()+cursorPos)
 }
 
 func cleanInput(text string) []string {
@@ -177,7 +181,7 @@ func cleanInput(text string) []string {
 	return words
 }
 
-func autocomplete(cmd string, strStart string, wordsDict []string, input *[]rune, cursorPos *int) {
+func autocomplete(cmd string, strStart string, wordsDict []string, inputSlice *[]rune, cursorPos *int, output io.Writer) {
 	suggestions := []string{}
 	for _, entity := range wordsDict {
 		if strings.HasPrefix(entity, strStart) {
@@ -199,12 +203,12 @@ func autocomplete(cmd string, strStart string, wordsDict []string, input *[]rune
 	} else if len(suggestions) > 1 {
 		fmt.Println()
 		for _, suggestion := range suggestions {
-			StartFromClearLine()
+			StartFromClearLine(output)
 			fmt.Println(suggestion)
 		}
 		newInput += LongestCommonPrefix(suggestions)
 	}
-	*input = []rune(newInput)
+	*inputSlice = []rune(newInput)
 	*cursorPos = len(newInput)
-	redrawLine(*input, *cursorPos)
+	redrawLine(*inputSlice, *cursorPos, output)
 }

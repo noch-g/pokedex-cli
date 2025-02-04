@@ -3,21 +3,22 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io"
 )
 
-func commandMapf(cfg *config, args ...string) error {
-	return commandMap(cfg, true)
+func commandMapf(cfg *config, output io.Writer, args ...string) error {
+	return commandMap(cfg, output, true)
 }
 
-func commandMapb(cfg *config, args ...string) error {
+func commandMapb(cfg *config, output io.Writer, args ...string) error {
 	if cfg.prevLocationsURL == nil {
 		return errors.New("you're on the first page")
 	}
 
-	return commandMap(cfg, false)
+	return commandMap(cfg, output, false)
 }
 
-func commandMap(cfg *config, goForward bool) error {
+func commandMap(cfg *config, output io.Writer, goForward bool) error {
 	var next_url *string
 	if goForward {
 		next_url = cfg.nextLocationsURL
@@ -40,9 +41,9 @@ func commandMap(cfg *config, goForward bool) error {
 	cfg.knownEntities["locations"] = []string{}
 	for _, loc := range locationsResp.Results {
 		if locationContainsNew(cfg, loc.Name, searchedPokemons) {
-			fmt.Println(ToBold(loc.Name))
+			fmt.Fprintln(output, ToBold(loc.Name))
 		} else {
-			fmt.Println(loc.Name)
+			fmt.Fprintln(output, loc.Name)
 		}
 		cfg.knownEntities["locations"] = append(cfg.knownEntities["locations"], loc.Name)
 	}
