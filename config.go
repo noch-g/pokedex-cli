@@ -7,6 +7,8 @@ import (
 	"github.com/noch-g/pokedex-cli/internal/pokeapi"
 )
 
+const Prompt = "Pokedex > "
+
 type config struct {
 	CaughtPokemon    map[string]pokeapi.Pokemon `json:"pokemons"`
 	knownEntities    map[string][]string

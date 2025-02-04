@@ -38,7 +38,7 @@ func commandCatch(cfg *config, args ...string) error {
 		cfg.CaughtPokemon[pokemon.Name] = pokemon
 		cfg.knownEntities["pokemons"] = append(cfg.knownEntities["pokemons"], pokemon.Name)
 	} else {
-		fmt.Printf("You already had a %s, but it's always nice to make a new friend !\n", pokemon.Name)
+		fmt.Printf("You already had a %s, but it's always nice to make a new friend!\n", pokemon.Name)
 	}
 
 	return nil

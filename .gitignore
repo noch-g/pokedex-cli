@@ -3,3 +3,5 @@ repl.log
 *.json
 *.png
 
+.DS_Store
+

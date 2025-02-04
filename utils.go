@@ -5,8 +5,12 @@ import (
 	"strings"
 )
 
+func GetPromptLength() int {
+	return len(Prompt)
+}
+
 func GetPromptMessage() string {
-	return "\r\033[K" + ToBold("Pokedex > ")
+	return ToBold(Prompt)
 }
 
 func ToBold(s string) string {

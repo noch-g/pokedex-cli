@@ -60,8 +60,8 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, known
 	}
 	defer term.Restore(int(syscall.Stdin), oldState)
 
-	var input strings.Builder
-
+	var input []rune
+	cursorPos := 0
 	for {
 		char, _, err := reader.ReadRune()
 		if err != nil {
@@ -81,7 +81,7 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, known
 			break
 		}
 
-		// Handle Up and Down Arrow Keys
+		// Handle Arrow Keys
 		if char == 27 {
 			next, _ := reader.ReadByte()
 			if next == 91 {
@@ -90,50 +90,62 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, known
 					if *historyIndex > 0 {
 						*historyIndex--
 					}
+					input = []rune((*history)[*historyIndex])
+					cursorPos = len(input)
+					redrawLine(input, cursorPos)
+					continue
 				} else if key == 66 && len(*history) > 0 { // Down Arrow  (↓)
 					if *historyIndex < len(*history)-1 {
 						*historyIndex++
 					} else {
 						*historyIndex = len(*history) - 1
 					}
-				} else {
+					input = []rune((*history)[*historyIndex])
+					cursorPos = len(input)
+					redrawLine(input, cursorPos)
+					continue
+				} else if key == 67 { // Right Arrow (→)
+					if cursorPos < len(input) {
+						cursorPos++
+						fmt.Print("\x1b[1C") // Move cursor to the right
+					}
+					continue
+				} else if key == 68 { // Left Arrow (←)
+					if cursorPos > 0 {
+						cursorPos--
+						fmt.Print("\x1b[1D") // Move cursor to the left
+					}
 					continue
 				}
-
-				fmt.Print(GetPromptMessage() + (*history)[*historyIndex])
-				input.Reset()
-				input.WriteString((*history)[*historyIndex])
-				continue
 			}
 		}
 
 		// Handle Backspace (←)
-		if char == 127 && input.Len() > 0 {
-			runes := []rune(input.String())
-			input.Reset()
-			input.WriteString(string(runes[:len(runes)-1]))
-			fmt.Print("\b \b")
+		if char == 127 && cursorPos > 0 {
+			input = append(input[:cursorPos-1], input[cursorPos:]...)
+			cursorPos--
+			redrawLine(input, cursorPos)
 			continue
 		}
 
 		// Handle tab for auto-completion
 		if char == 9 {
-			currentInput := input.String()
+			currentInput := string(input)
 			wordsInput := cleanInput(currentInput)
 
 			if len(wordsInput) == 1 {
-				autocomplete("", wordsInput[0], knownEntities["commands"], &input)
+				autocomplete("", wordsInput[0], knownEntities["commands"], &input, &cursorPos)
 				continue
 			} else if len(wordsInput) == 2 {
 				switch wordsInput[0] {
 				case "explore":
-					autocomplete("explore", wordsInput[1], knownEntities["locations"], &input)
+					autocomplete("explore", wordsInput[1], knownEntities["locations"], &input, &cursorPos)
 					continue
 				case "inspect":
-					autocomplete("inspect", wordsInput[1], knownEntities["pokemons"], &input)
+					autocomplete("inspect", wordsInput[1], knownEntities["pokemons"], &input, &cursorPos)
 					continue
 				case "catch":
-					autocomplete("catch", wordsInput[1], knownEntities["wildPokemons"], &input)
+					autocomplete("catch", wordsInput[1], knownEntities["wildPokemons"], &input, &cursorPos)
 					continue
 				default:
 					continue
@@ -142,13 +154,21 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, known
 				continue
 			}
 		}
-
-		// Append character to input
-		input.WriteRune(char)
-		fmt.Printf("%s", string(char))
+		input = append(input[:cursorPos], append([]rune{char}, input[cursorPos:]...)...)
+		cursorPos++
+		redrawLine(input, cursorPos)
 	}
 
-	return input.String(), nil
+	return string(input), nil
+}
+
+func redrawLine(input []rune, cursorPos int) {
+	fmt.Print("\r" + GetPromptMessage() + string(input) + " \x1b[K")
+	placeCursor(cursorPos)
+}
+
+func placeCursor(cursorPos int) {
+	fmt.Printf("\r\x1b[%dC", GetPromptLength()+cursorPos)
 }
 
 func cleanInput(text string) []string {
@@ -157,7 +177,7 @@ func cleanInput(text string) []string {
 	return words
 }
 
-func autocomplete(cmd string, strStart string, wordsDict []string, input *strings.Builder) {
+func autocomplete(cmd string, strStart string, wordsDict []string, input *[]rune, cursorPos *int) {
 	suggestions := []string{}
 	for _, entity := range wordsDict {
 		if strings.HasPrefix(entity, strStart) {
@@ -169,7 +189,7 @@ func autocomplete(cmd string, strStart string, wordsDict []string, input *string
 	}
 
 	var newInput string
-	input.Reset()
+
 	if len(cmd) > 0 {
 		newInput += cmd + " "
 	}
@@ -184,7 +204,7 @@ func autocomplete(cmd string, strStart string, wordsDict []string, input *string
 		}
 		newInput += LongestCommonPrefix(suggestions)
 	}
-
-	input.WriteString(newInput)
-	fmt.Print(GetPromptMessage() + newInput)
+	*input = []rune(newInput)
+	*cursorPos = len(newInput)
+	redrawLine(*input, *cursorPos)
 }
