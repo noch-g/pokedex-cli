@@ -78,7 +78,7 @@ func pixelToASCII(c color.Color) string {
 
 	gray = gray / 255.0
 
-	asciiChars := []string{"@", "#", "8", "&", "o", ":", "*", ".", " "}
+	asciiChars := []string{"#", "8", "@", "&", "o", ":", "*", ".", " "}
 	idx := int(gray * float64(len(asciiChars)-1))
 
 	return asciiChars[idx]
