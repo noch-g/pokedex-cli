@@ -31,7 +31,7 @@ func commandCatch(cfg *config, output io.Writer, args ...string) error {
 	if err != nil {
 		fmt.Fprintf(output, "(Image could not be retrieved)")
 	} else {
-		fmt.Fprintf(output, imgStr)
+		fmt.Fprint(output, imgStr)
 	}
 
 	if _, ok := cfg.CaughtPokemon[pokemon.Name]; !ok {

@@ -167,7 +167,7 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, known
 }
 
 func redrawLine(inputSlice []rune, cursorPos int, output io.Writer) {
-	fmt.Fprintf(output, "\r"+GetPromptMessage()+string(inputSlice)+" \x1b[K")
+	fmt.Fprint(output, "\r"+GetPromptMessage()+string(inputSlice)+" \x1b[K")
 	placeCursor(cursorPos, output)
 }
 

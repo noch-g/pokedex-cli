@@ -38,7 +38,7 @@ func commandPokedex(cfg *config, output io.Writer, args ...string) error {
 	for i, row := range table {
 		for j, entry := range row {
 			if entry != "" {
-				fmt.Fprintf(output, entry)
+				fmt.Fprint(output, entry)
 			} else if (i+1)+j*rows <= 151 {
 				fmt.Fprintf(output, "#%03d %-15s", (i+1)+j*rows, "   ???")
 			}
