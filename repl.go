@@ -125,10 +125,12 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, known
 		}
 
 		// Handle Backspace (←)
-		if char == 127 && cursorPos > 0 {
-			inputSlice = append(inputSlice[:cursorPos-1], inputSlice[cursorPos:]...)
-			cursorPos--
-			redrawLine(inputSlice, cursorPos, output)
+		if char == 127 {
+			if cursorPos > 0 {
+				inputSlice = append(inputSlice[:cursorPos-1], inputSlice[cursorPos:]...)
+				cursorPos--
+				redrawLine(inputSlice, cursorPos, output)
+			}
 			continue
 		}
 
