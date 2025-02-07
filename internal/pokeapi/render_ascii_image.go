@@ -9,6 +9,8 @@ import (
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/noch-g/pokedex-cli/internal/logger"
 )
 
 func (c *Client) RenderImage(pokemon *Pokemon) (string, error) {
@@ -37,7 +39,7 @@ func (c *Client) downloadImage(imageUrl string) (image.Image, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	logger.Debug("GET", "url", url)
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err

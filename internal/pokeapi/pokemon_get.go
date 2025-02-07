@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/noch-g/pokedex-cli/internal/logger"
 )
 
 func (c *Client) GetPokemon(pokemonName string) (Pokemon, error) {
@@ -24,7 +26,7 @@ func (c *Client) GetPokemon(pokemonName string) (Pokemon, error) {
 	if err != nil {
 		return Pokemon{}, err
 	}
-
+	logger.Debug("GET", "url", url)
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return Pokemon{}, err
