@@ -1,4 +1,4 @@
-package main
+package repl
 
 import (
 	"bufio"
@@ -46,7 +46,7 @@ func TestStartRepl_ValidCommands(t *testing.T) {
 	inR, inW := io.Pipe()
 	outR, outW := io.Pipe()
 
-	go startRepl(cfg, inR, outW)
+	go StartRepl(cfg, inR, outW)
 
 	// Make this higher if cmd is expected to output more lines
 	outputChan := make(chan string, 100)

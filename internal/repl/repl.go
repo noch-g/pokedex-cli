@@ -1,4 +1,4 @@
-package main
+package repl
 
 import (
 	"bufio"
@@ -14,7 +14,7 @@ import (
 	"golang.org/x/term"
 )
 
-func startRepl(cfg *config.Config, input io.Reader, output io.Writer) {
+func StartRepl(cfg *config.Config, input io.Reader, output io.Writer) {
 	reader := bufio.NewReader(input)
 	commands := commands.GetCommands()
 	var history []string

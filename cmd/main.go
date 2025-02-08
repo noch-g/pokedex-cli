@@ -7,6 +7,7 @@ import (
 	"github.com/noch-g/pokedex-cli/internal/commands"
 	"github.com/noch-g/pokedex-cli/internal/config"
 	"github.com/noch-g/pokedex-cli/internal/pokeapi"
+	"github.com/noch-g/pokedex-cli/internal/repl"
 )
 
 func main() {
@@ -14,5 +15,5 @@ func main() {
 	cfg := config.NewConfig(pokeClient)
 	cfg.Load("pokemons.json", commands.GetCommandNames())
 
-	startRepl(cfg, os.Stdin, os.Stdout)
+	repl.StartRepl(cfg, os.Stdin, os.Stdout)
 }
