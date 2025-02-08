@@ -8,22 +8,25 @@ import (
 	"syscall"
 	"testing"
 
+	"github.com/noch-g/pokedex-cli/internal/commands"
+	"github.com/noch-g/pokedex-cli/internal/config"
+	"github.com/noch-g/pokedex-cli/internal/text"
 	"golang.org/x/term"
 )
 
-func startRepl(cfg *config, input io.Reader, output io.Writer) {
+func startRepl(cfg *config.Config, input io.Reader, output io.Writer) {
 	reader := bufio.NewReader(input)
-	commands := getCommands()
+	commands := commands.GetCommands()
 	var history []string
 	historyIndex := -1
 
 	for {
-		fmt.Fprint(output, GetPromptMessage())
+		fmt.Fprint(output, config.GetPromptMessage())
 
-		userInput, err := readInput(reader, &history, &historyIndex, cfg.knownEntities, output)
+		userInput, err := readInput(reader, &history, &historyIndex, cfg.KnownEntities, output)
 		if err != nil {
 			if err.Error() == "ctrl+C or ctrl+D called" {
-				commands["exit"].callback(cfg, output)
+				commands["exit"].Callback(cfg, output)
 			}
 			break
 		}
@@ -43,9 +46,9 @@ func startRepl(cfg *config, input io.Reader, output io.Writer) {
 		commandName := words[0]
 
 		command, exists := commands[commandName]
-		StartFromClearLine(output)
+		text.StartFromClearLine(output)
 		if exists {
-			err := command.callback(cfg, output, args...)
+			err := command.Callback(cfg, output, args...)
 			if err != nil {
 				fmt.Fprintln(output, err)
 			}
@@ -75,7 +78,7 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, known
 		// Handle Ctrl+C and Ctrl+D
 		if char == 3 || char == 4 {
 			fmt.Fprintf(output, "\n")
-			StartFromClearLine(output)
+			text.StartFromClearLine(output)
 			return "", fmt.Errorf("ctrl+C or ctrl+D called")
 		}
 
@@ -169,12 +172,12 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, known
 }
 
 func redrawLine(inputSlice []rune, cursorPos int, output io.Writer) {
-	fmt.Fprint(output, "\r"+GetPromptMessage()+string(inputSlice)+" \x1b[K")
+	fmt.Fprint(output, "\r"+config.GetPromptMessage()+string(inputSlice)+" \x1b[K")
 	placeCursor(cursorPos, output)
 }
 
 func placeCursor(cursorPos int, output io.Writer) {
-	fmt.Fprintf(output, "\r\x1b[%dC", GetPromptLength()+cursorPos)
+	fmt.Fprintf(output, "\r\x1b[%dC", config.GetPromptLength()+cursorPos)
 }
 
 func cleanInput(text string) []string {
@@ -205,10 +208,10 @@ func autocomplete(cmd string, strStart string, wordsDict []string, inputSlice *[
 	} else if len(suggestions) > 1 {
 		fmt.Println()
 		for _, suggestion := range suggestions {
-			StartFromClearLine(output)
+			text.StartFromClearLine(output)
 			fmt.Println(suggestion)
 		}
-		newInput += LongestCommonPrefix(suggestions)
+		newInput += text.LongestCommonPrefix(suggestions)
 	}
 	*inputSlice = []rune(newInput)
 	*cursorPos = len(newInput)

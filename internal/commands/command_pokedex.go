@@ -1,12 +1,14 @@
-package main
+package commands
 
 import (
 	"fmt"
 	"io"
 	"strings"
+
+	"github.com/noch-g/pokedex-cli/internal/config"
 )
 
-func commandPokedex(cfg *config, output io.Writer, args ...string) error {
+func commandPokedex(cfg *config.Config, output io.Writer, args ...string) error {
 	if len(cfg.CaughtPokemon) == 0 {
 		fmt.Fprintln(output, "Your pokedex is empty for now. Try to use the command catch <pokemon>")
 		return nil

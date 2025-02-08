@@ -1,18 +1,10 @@
-package main
+package text
 
 import (
 	"fmt"
 	"io"
 	"strings"
 )
-
-func GetPromptLength() int {
-	return len(Prompt)
-}
-
-func GetPromptMessage() string {
-	return ToBold(Prompt)
-}
 
 func ToBold(s string) string {
 	return "\033[1m" + s + "\033[0m"

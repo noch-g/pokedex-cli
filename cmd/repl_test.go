@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/noch-g/pokedex-cli/internal/config"
 	"github.com/noch-g/pokedex-cli/internal/pokeapi"
 )
 
@@ -23,22 +24,22 @@ func TestStartRepl_ValidCommands(t *testing.T) {
 		{
 			name:     "Check mapb before any location loaded",
 			input:    "mapb",
-			expected: []string{GetPromptMessage() + "mapb", "you're on the first page"},
+			expected: []string{config.GetPromptMessage() + "mapb", "you're on the first page"},
 		},
 		{
 			name:     "Load locations with map",
 			input:    "map",
-			expected: []string{GetPromptMessage() + "map", "canalave-city-area"},
+			expected: []string{config.GetPromptMessage() + "map", "canalave-city-area"},
 		},
 		{
 			name:     "Load locations with map x2",
 			input:    "map",
-			expected: []string{GetPromptMessage() + "map", "mt-coronet-1f-route-216"},
+			expected: []string{config.GetPromptMessage() + "map", "mt-coronet-1f-route-216"},
 		},
 		{
 			name:     "Check mapb after locations loaded",
 			input:    "mapb",
-			expected: []string{GetPromptMessage() + "mapb", "canalave-city-area", "eterna-city-area"},
+			expected: []string{config.GetPromptMessage() + "mapb", "canalave-city-area", "eterna-city-area"},
 		},
 	}
 
@@ -146,18 +147,9 @@ func TestCleanInput(t *testing.T) {
 	}
 }
 
-func setupTestConfig() *config {
+func setupTestConfig() *config.Config {
 	pokeClient := pokeapi.NewClient(5*time.Second, 5*time.Minute)
-	return &config{
-		CaughtPokemon: map[string]pokeapi.Pokemon{},
-		knownEntities: map[string][]string{
-			"commands":     {},
-			"pokemons":     {},
-			"locations":    {},
-			"wildPokemons": {},
-		},
-		pokeapiClient: pokeClient,
-	}
+	return config.NewConfig(pokeClient)
 }
 
 func areAllExpectedFound(output []string, cmd commandTestCase) bool {

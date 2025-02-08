@@ -1,19 +1,21 @@
-package main
+package commands
 
 import (
 	"errors"
 	"fmt"
 	"io"
 	"math/rand"
+
+	"github.com/noch-g/pokedex-cli/internal/config"
 )
 
-func commandCatch(cfg *config, output io.Writer, args ...string) error {
+func commandCatch(cfg *config.Config, output io.Writer, args ...string) error {
 	if len(args) != 1 {
 		return errors.New("you must provide a pokemon name")
 	}
 	pokemonName := args[0]
 
-	pokemon, err := cfg.pokeapiClient.GetPokemon(pokemonName)
+	pokemon, err := cfg.PokeapiClient.GetPokemon(pokemonName)
 	if err != nil {
 		return err
 	}
@@ -27,7 +29,7 @@ func commandCatch(cfg *config, output io.Writer, args ...string) error {
 		return nil
 	}
 	fmt.Fprintf(output, "%s was caught! (#%03d)\n", pokemon.Name, pokemon.ID)
-	imgStr, err := cfg.pokeapiClient.RenderImage(&pokemon)
+	imgStr, err := cfg.PokeapiClient.RenderImage(&pokemon)
 	if err != nil {
 		fmt.Fprintf(output, "(Image could not be retrieved)")
 	} else {
@@ -37,7 +39,7 @@ func commandCatch(cfg *config, output io.Writer, args ...string) error {
 	if _, ok := cfg.CaughtPokemon[pokemon.Name]; !ok {
 		fmt.Fprintf(output, "The information was added to the pokedex (#%03d). You may now inspect it with the inspect command.\n", pokemon.ID)
 		cfg.CaughtPokemon[pokemon.Name] = pokemon
-		cfg.knownEntities["pokemons"] = append(cfg.knownEntities["pokemons"], pokemon.Name)
+		cfg.KnownEntities["pokemons"] = append(cfg.KnownEntities["pokemons"], pokemon.Name)
 	} else {
 		fmt.Fprintf(output, "You already had a %s, but it's always nice to make a new friend!\n", pokemon.Name)
 	}

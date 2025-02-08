@@ -1,54 +1,67 @@
-package main
+package commands
 
-import "io"
+import (
+	"io"
+
+	"github.com/noch-g/pokedex-cli/internal/config"
+)
 
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*config, io.Writer, ...string) error
+	Callback    func(*config.Config, io.Writer, ...string) error
 }
 
-func getCommands() map[string]cliCommand {
+func GetCommands() map[string]cliCommand {
 	return map[string]cliCommand{
 		"help": {
 			name:        "help",
 			description: "Displays a help message",
-			callback:    commandHelp,
+			Callback:    commandHelp,
 		},
 		"map": {
 			name:        "map",
 			description: "Get the next page of locations",
-			callback:    commandMapf,
+			Callback:    commandMapf,
 		},
 		"mapb": {
 			name:        "mapb",
 			description: "Get the previous page of locations",
-			callback:    commandMapb,
+			Callback:    commandMapb,
 		},
 		"exit": {
 			name:        "exit",
 			description: "Exit the Pokedex",
-			callback:    commandExit,
+			Callback:    commandExit,
 		},
 		"explore": {
 			name:        "explore <location_name>",
 			description: "Explore a location",
-			callback:    commandExplore,
+			Callback:    commandExplore,
 		},
 		"catch": {
 			name:        "catch <pokemon_name>",
 			description: "Attempt to catch a pokemon",
-			callback:    commandCatch,
+			Callback:    commandCatch,
 		},
 		"inspect": {
 			name:        "inspect <pokemon_name>",
 			description: "Inspect a pokemon that you have caught",
-			callback:    commandInspect,
+			Callback:    commandInspect,
 		},
 		"pokedex": {
 			name:        "pokedex",
 			description: "show the pokemons you have caught",
-			callback:    commandPokedex,
+			Callback:    commandPokedex,
 		},
 	}
+}
+
+func GetCommandNames() []string {
+	commands := GetCommands()
+	commandNames := make([]string, 0, len(commands))
+	for name := range commands {
+		commandNames = append(commandNames, name)
+	}
+	return commandNames
 }
