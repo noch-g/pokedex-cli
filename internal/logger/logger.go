@@ -8,7 +8,7 @@ import (
 
 var Logger *slog.Logger
 
-func init() {
+func InitLogger() {
 	debug := flag.Bool("debug", false, "Enable debug mode")
 	flag.Parse()
 

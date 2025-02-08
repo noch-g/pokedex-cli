@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 	"time"
+
+	"github.com/noch-g/pokedex-cli/internal/logger"
 )
 
 func TestAddGet(t *testing.T) {
@@ -58,4 +60,12 @@ func TestReapLoop(t *testing.T) {
 		t.Errorf("expected to not find key")
 		return
 	}
+}
+
+func TestMain(m *testing.M) {
+	// Initialize the logger for tests
+	logger.InitLogger()
+
+	// Run the tests
+	m.Run() // This calls all the test cases
 }

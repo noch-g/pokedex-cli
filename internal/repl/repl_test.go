@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/noch-g/pokedex-cli/internal/config"
+	"github.com/noch-g/pokedex-cli/internal/logger"
 	"github.com/noch-g/pokedex-cli/internal/pokeapi"
 )
 
@@ -167,4 +168,12 @@ func areAllExpectedFound(output []string, cmd commandTestCase) bool {
 		}
 	}
 	return true
+}
+
+func TestMain(m *testing.M) {
+	// Initialize the logger for tests
+	logger.InitLogger()
+
+	// Run the tests
+	m.Run() // This calls all the test cases
 }
