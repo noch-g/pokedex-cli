@@ -155,6 +155,17 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, known
 				case "catch":
 					autocomplete("catch", wordsInput[1], knownEntities["wildPokemons"], &inputSlice, &cursorPos, output)
 					continue
+				case "compare":
+					autocomplete("compare", wordsInput[1], knownEntities["pokemons"], &inputSlice, &cursorPos, output)
+					continue
+				default:
+					continue
+				}
+			} else if len(wordsInput) == 3 {
+				switch wordsInput[0] {
+				case "compare":
+					autocomplete("compare "+wordsInput[1], wordsInput[2], knownEntities["pokemons"], &inputSlice, &cursorPos, output)
+					continue
 				default:
 					continue
 				}

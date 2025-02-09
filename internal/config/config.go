@@ -12,8 +12,8 @@ const Prompt = "Pokedex > "
 
 type Config struct {
 	CaughtPokemon    map[string]pokeapi.Pokemon `json:"pokemons"`
-	KnownEntities    map[string][]string
-	PokeapiClient    pokeapi.Client `json:"-"`
+	KnownEntities    map[string][]string        `json:"-"`
+	PokeapiClient    pokeapi.Client             `json:"-"`
 	NextLocationsURL *string
 	PrevLocationsURL *string
 }
