@@ -10,7 +10,7 @@ import (
 )
 
 func commandExit(cfg *config.Config, output io.Writer, args ...string) error {
-	fmt.Fprintf(output, "Closing the Pokedex... Goodbye!\n")
+	fmt.Fprintf(output, "\rClosing the Pokedex... Goodbye!\n")
 	if testing.Testing() {
 		return fmt.Errorf("exit called during test")
 	}

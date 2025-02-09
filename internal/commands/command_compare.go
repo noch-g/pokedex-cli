@@ -12,11 +12,10 @@ import (
 )
 
 func commandCompare(cfg *config.Config, output io.Writer, args ...string) error {
-	width, height, err := term.GetSize(int(os.Stdout.Fd()))
+	width, _, err := term.GetSize(int(os.Stdout.Fd()))
 	if err != nil {
 		return fmt.Errorf("error getting terminal size: %v", err)
 	}
-	fmt.Printf("Terminal size: %d x %d\n", width, height)
 
 	if len(args) != 2 {
 		return errors.New("you must provide two pokemon names")
