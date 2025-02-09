@@ -53,7 +53,7 @@ func StartRepl(cfg *config.Config, input io.Reader, output io.Writer) {
 				fmt.Fprintln(output, err)
 			}
 		} else {
-			fmt.Fprintf(output, "Unknown command: \"%s\"\n", commandName)
+			fmt.Fprintf(output, "Unknown command: \"%s\". Type 'help' for a list of available commands.\n", commandName)
 		}
 	}
 }
@@ -78,7 +78,6 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, known
 		// Handle Ctrl+C and Ctrl+D
 		if char == 3 || char == 4 {
 			fmt.Fprintf(output, "\n")
-			text.StartFromClearLine(output)
 			return "", fmt.Errorf("ctrl+C or ctrl+D called")
 		}
 

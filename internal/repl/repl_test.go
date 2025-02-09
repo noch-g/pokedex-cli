@@ -19,7 +19,7 @@ type commandTestCase struct {
 	expected []string
 }
 
-func TestStartRepl_ValidCommands(t *testing.T) {
+func TestStartRepl_Commands(t *testing.T) {
 	cfg := setupTestConfig()
 	commands := []commandTestCase{
 		{
@@ -41,6 +41,26 @@ func TestStartRepl_ValidCommands(t *testing.T) {
 			name:     "Check mapb after locations loaded",
 			input:    "mapb",
 			expected: []string{config.GetPromptMessage() + "mapb", "canalave-city-area", "eterna-city-area"},
+		},
+		{
+			name:     "Check backspace",
+			input:    "b\x7f\x7f\x7fbb\x7f\x7fbackspace",
+			expected: []string{config.GetPromptMessage() + "backspace"},
+		},
+		{
+			name:     "Check left right arrow keys",
+			input:    "bbbbbbbb\x1b\x5b\x44\x1b\x5b\x44\x1b\x5b\x44a\x1b\x5b\x43\x1b\x5b\x43c",
+			expected: []string{config.GetPromptMessage() + "bbbbbabbcb"},
+		},
+		{
+			name:     "Check left up down arrow keys",
+			input:    "bb\x1b\x5b\x41\x1b\x5b\x41\x1b\x5b\x41\x1b\x5b\x42",
+			expected: []string{config.GetPromptMessage() + "backspace"},
+		},
+		{
+			name:     "Check unknown command",
+			input:    "unknownCmd",
+			expected: []string{config.GetPromptMessage() + "unknownCmd", "Unknown command: \"unknowncmd\""},
 		},
 	}
 
@@ -171,9 +191,7 @@ func areAllExpectedFound(output []string, cmd commandTestCase) bool {
 }
 
 func TestMain(m *testing.M) {
-	// Initialize the logger for tests
 	logger.InitLogger()
 
-	// Run the tests
-	m.Run() // This calls all the test cases
+	m.Run()
 }
