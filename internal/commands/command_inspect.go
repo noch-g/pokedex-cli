@@ -25,17 +25,6 @@ func commandInspect(cfg *config.Config, output io.Writer, args ...string) error 
 	} else {
 		fmt.Fprintln(output, imgStr)
 	}
-	fmt.Fprintf(output, "Name: %s\n", pokemon.Name)
-	fmt.Fprintf(output, "Height: %v\n", pokemon.Height)
-	fmt.Fprintf(output, "Weight: %v\n", pokemon.Weight)
-	fmt.Fprintf(output, "Stats:\n")
-	for _, stat := range pokemon.Stats {
-		fmt.Fprintf(output, "  -%s: %v\n", stat.Stat.Name, stat.BaseStat)
-	}
-	fmt.Fprintln(output, "Types:")
-	for _, typeInfo := range pokemon.Types {
-		fmt.Fprintf(output, "  - %s\n", typeInfo.Type.Name)
-	}
-
+	fmt.Fprintln(output, pokemon.GetStatsStr())
 	return nil
 }

@@ -54,6 +54,11 @@ func GetCommands() map[string]cliCommand {
 			description: "show the pokemons you have caught",
 			Callback:    commandPokedex,
 		},
+		"compare": {
+			name:        "compare <pokemon_1> <pokemon_2>",
+			description: "Compare two pokemons",
+			Callback:    commandCompare,
+		},
 	}
 }
 

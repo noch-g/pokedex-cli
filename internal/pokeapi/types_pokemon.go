@@ -1,5 +1,10 @@
 package pokeapi
 
+import (
+	"fmt"
+	"strings"
+)
+
 type RespPokemons struct {
 	Count    int     `json:"count"`
 	Next     *string `json:"next"`
@@ -252,4 +257,20 @@ type Pokemon struct {
 		} `json:"type"`
 	} `json:"types"`
 	Weight int `json:"weight"`
+}
+
+func (p *Pokemon) GetStatsStr() string {
+	var output strings.Builder
+	fmt.Fprintf(&output, "Name: %s\n", p.Name)
+	fmt.Fprintf(&output, "Height: %v\n", p.Height)
+	fmt.Fprintf(&output, "Weight: %v\n", p.Weight)
+	fmt.Fprintf(&output, "Stats:\n")
+	for _, stat := range p.Stats {
+		fmt.Fprintf(&output, "  -%s: %v\n", stat.Stat.Name, stat.BaseStat)
+	}
+	fmt.Fprintf(&output, "Types:\n")
+	for _, typeInfo := range p.Types {
+		fmt.Fprintf(&output, "  - %s\n", typeInfo.Type.Name)
+	}
+	return strings.TrimSuffix(output.String(), "\n")
 }
