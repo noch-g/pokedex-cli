@@ -14,6 +14,7 @@ func (c *Client) GetLocation(locationName string) (Location, error) {
 
 	// Check cache before request
 	if val, ok := c.cache.Get(url); ok {
+		logger.Debug("FROM CACHE", "url", url)
 		locationResp := Location{}
 		err := json.Unmarshal(val, &locationResp)
 		if err != nil {

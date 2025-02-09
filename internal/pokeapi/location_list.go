@@ -8,7 +8,6 @@ import (
 	"github.com/noch-g/pokedex-cli/internal/logger"
 )
 
-// ListLocations -
 func (c *Client) ListLocations(pageURL *string) (RespShallowLocations, error) {
 	url := baseURL + "/location-area"
 	if pageURL != nil {
@@ -17,6 +16,7 @@ func (c *Client) ListLocations(pageURL *string) (RespShallowLocations, error) {
 
 	// Check cache before request
 	if val, ok := c.cache.Get(url); ok {
+		logger.Debug("FROM CACHE", "url", url)
 		locationsResp := RespShallowLocations{}
 		err := json.Unmarshal(val, &locationsResp)
 		if err != nil {

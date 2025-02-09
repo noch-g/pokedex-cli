@@ -10,7 +10,6 @@ type RespPokemons struct {
 	} `json:"results"`
 }
 
-// Pokemon -
 type Pokemon struct {
 	Abilities []struct {
 		Ability struct {

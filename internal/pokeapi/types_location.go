@@ -1,6 +1,5 @@
 package pokeapi
 
-// RespShallowLocations -
 type RespShallowLocations struct {
 	Count    int     `json:"count"`
 	Next     *string `json:"next"`
@@ -11,7 +10,6 @@ type RespShallowLocations struct {
 	} `json:"results"`
 }
 
-// Location -
 type Location struct {
 	EncounterMethodRates []struct {
 		EncounterMethod struct {

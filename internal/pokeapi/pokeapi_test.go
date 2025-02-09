@@ -172,9 +172,7 @@ func TestLocationList(t *testing.T) {
 }
 
 func TestMain(m *testing.M) {
-	// Initialize the logger for tests
 	logger.InitLogger()
 
-	// Run the tests
-	m.Run() // This calls all the test cases
+	m.Run()
 }

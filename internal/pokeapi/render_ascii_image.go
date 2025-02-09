@@ -28,6 +28,7 @@ func (c *Client) downloadImage(imageUrl string) (image.Image, error) {
 
 	// Check cache before request
 	if val, ok := c.cache.Get(url); ok {
+		logger.Debug("FROM CACHE", "url", url)
 		img, _, err := image.Decode(bytes.NewReader(val))
 		if err != nil {
 			return nil, err

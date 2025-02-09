@@ -23,7 +23,6 @@ func InitLogger() {
 	slog.SetDefault(Logger)
 }
 
-// Fonctions raccourcies
 func Debug(msg string, args ...any) {
 	Logger.Debug(msg, args...)
 }

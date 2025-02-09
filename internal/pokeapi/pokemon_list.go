@@ -14,6 +14,7 @@ func (c *Client) GetPokemonList(start, end int) (RespPokemons, error) {
 
 	// Check cache before request
 	if val, ok := c.cache.Get(url); ok {
+		logger.Debug("FROM CACHE", "url", url)
 		pokemonResp := RespPokemons{}
 		err := json.Unmarshal(val, &pokemonResp)
 		if err != nil {
