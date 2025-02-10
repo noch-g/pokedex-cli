@@ -14,7 +14,8 @@ func commandExit(cfg *config.Config, output io.Writer, args ...string) error {
 	if testing.Testing() {
 		return fmt.Errorf("exit called during test")
 	}
-	cfg.Save("pokemons.json")
+	cfg.SaveConf()
+	cfg.PokeapiClient.SaveCache()
 	os.Exit(0)
 	return nil
 }

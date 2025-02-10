@@ -5,10 +5,9 @@ import (
 	"os"
 
 	"github.com/noch-g/pokedex-cli/internal/pokeapi"
+	"github.com/noch-g/pokedex-cli/internal/settings"
 	"github.com/noch-g/pokedex-cli/internal/text"
 )
-
-const Prompt = "Pokedex > "
 
 type Config struct {
 	CaughtPokemon    map[string]pokeapi.Pokemon `json:"pokemons"`
@@ -26,8 +25,8 @@ func NewConfig(pokeapiClient pokeapi.Client) *Config {
 	}
 }
 
-func (cfg *Config) Save(filename string) error {
-	file, err := os.Create(filename)
+func (cfg *Config) SaveConf() error {
+	file, err := os.Create(settings.SaveFilePath)
 	if err != nil {
 		return err
 	}
@@ -67,9 +66,9 @@ func (cfg *Config) Load(filename string, commandNames []string) error {
 }
 
 func GetPromptLength() int {
-	return len(Prompt)
+	return len(settings.Prompt)
 }
 
 func GetPromptMessage() string {
-	return text.ToBold(Prompt)
+	return text.ToBold(settings.Prompt)
 }

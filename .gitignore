@@ -2,6 +2,7 @@ pokedex-cli
 repl.log
 *.json
 *.png
+*.gob
 
 .DS_Store
 

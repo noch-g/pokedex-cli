@@ -1,13 +1,15 @@
 package pokecache
 
 import (
+	"encoding/gob"
+	"os"
 	"sync"
 	"time"
 )
 
 type cacheEntry struct {
-	createdAt time.Time
-	val       []byte
+	CreatedAt time.Time
+	Val       []byte
 }
 
 type Cache struct {
@@ -28,8 +30,8 @@ func (c *Cache) Add(key string, val []byte) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.cacheMap[key] = cacheEntry{
-		createdAt: time.Now().UTC(),
-		val:       val,
+		CreatedAt: time.Now().UTC(),
+		Val:       val,
 	}
 }
 
@@ -37,7 +39,7 @@ func (c *Cache) Get(key string) ([]byte, bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	val, ok := c.cacheMap[key]
-	return val.val, ok
+	return val.Val, ok
 }
 
 func (c *Cache) reapLoop(interval time.Duration) {
@@ -51,8 +53,36 @@ func (c *Cache) reap(now time.Time, interval time.Duration) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	for k, v := range c.cacheMap {
-		if v.createdAt.Before(now.Add(-interval)) {
+		if v.CreatedAt.Before(now.Add(-interval)) {
 			delete(c.cacheMap, k)
 		}
 	}
+}
+
+func (c *Cache) SaveToFile(filename string) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	file, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	encoder := gob.NewEncoder(file)
+	return encoder.Encode(c.cacheMap)
+}
+
+func (c *Cache) LoadFromFile(filename string) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	file, err := os.Open(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	decoder := gob.NewDecoder(file)
+	return decoder.Decode(&c.cacheMap)
 }
