@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"slices"
 	"strings"
 	"syscall"
 	"testing"
@@ -68,6 +69,8 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, known
 	}
 
 	var inputSlice []rune
+	var isSecondTab = false
+	var doubleTapDetected = false
 	cursorPos := 0
 	for {
 		char, _, err := reader.ReadRune()
@@ -84,7 +87,86 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, known
 		// Handle Enter key
 		if char == 10 || char == 13 {
 			fmt.Fprintf(output, "\n")
+			text.StartFromClearLine(output)
 			break
+		}
+
+		// Handle tab for auto-completion
+		doubleTapDetected = false
+		if char == 9 {
+			currentInput := string(inputSlice)
+			wordsInput := cleanInput(currentInput)
+
+			if isSecondTab {
+				isSecondTab = false
+				doubleTapDetected = true
+			} else {
+				isSecondTab = true
+			}
+
+			if len(wordsInput) == 0 && doubleTapDetected {
+				autocomplete("", "", knownEntities["commands"], &inputSlice, &cursorPos, output)
+				continue
+			} else if len(wordsInput) == 1 {
+				switch wordsInput[0] {
+				case "inspect":
+					if doubleTapDetected {
+						autocomplete("inspect", "", knownEntities["pokemons"], &inputSlice, &cursorPos, output)
+					}
+					continue
+				case "explore":
+					if doubleTapDetected {
+						autocomplete("explore", "", knownEntities["locations"], &inputSlice, &cursorPos, output)
+					}
+					continue
+				case "catch":
+					if doubleTapDetected {
+						autocomplete("catch", "", knownEntities["wildPokemons"], &inputSlice, &cursorPos, output)
+					}
+					continue
+				case "compare":
+					if doubleTapDetected {
+						autocomplete("compare", "", knownEntities["pokemons"], &inputSlice, &cursorPos, output)
+					}
+					continue
+				default:
+					autocomplete("", wordsInput[0], knownEntities["commands"], &inputSlice, &cursorPos, output)
+					continue
+				}
+			} else if len(wordsInput) == 2 {
+				switch wordsInput[0] {
+				case "explore":
+					autocomplete("explore", wordsInput[1], knownEntities["locations"], &inputSlice, &cursorPos, output)
+					continue
+				case "inspect":
+					autocomplete("inspect", wordsInput[1], knownEntities["pokemons"], &inputSlice, &cursorPos, output)
+					continue
+				case "catch":
+					autocomplete("catch", wordsInput[1], knownEntities["wildPokemons"], &inputSlice, &cursorPos, output)
+					continue
+				case "compare":
+					if doubleTapDetected && slices.Contains(knownEntities["pokemons"], wordsInput[1]) {
+						autocomplete("compare "+wordsInput[1], "", knownEntities["pokemons"], &inputSlice, &cursorPos, output)
+					} else {
+						autocomplete("compare", wordsInput[1], knownEntities["pokemons"], &inputSlice, &cursorPos, output)
+					}
+					continue
+				default:
+					continue
+				}
+			} else if len(wordsInput) == 3 {
+				switch wordsInput[0] {
+				case "compare":
+					autocomplete("compare "+wordsInput[1], wordsInput[2], knownEntities["pokemons"], &inputSlice, &cursorPos, output)
+					continue
+				default:
+					continue
+				}
+			} else {
+				continue
+			}
+		} else {
+			isSecondTab = false
 		}
 
 		// Handle Arrow Keys
@@ -136,43 +218,6 @@ func readInput(reader *bufio.Reader, history *[]string, historyIndex *int, known
 			continue
 		}
 
-		// Handle tab for auto-completion
-		if char == 9 {
-			currentInput := string(inputSlice)
-			wordsInput := cleanInput(currentInput)
-
-			if len(wordsInput) == 1 {
-				autocomplete("", wordsInput[0], knownEntities["commands"], &inputSlice, &cursorPos, output)
-				continue
-			} else if len(wordsInput) == 2 {
-				switch wordsInput[0] {
-				case "explore":
-					autocomplete("explore", wordsInput[1], knownEntities["locations"], &inputSlice, &cursorPos, output)
-					continue
-				case "inspect":
-					autocomplete("inspect", wordsInput[1], knownEntities["pokemons"], &inputSlice, &cursorPos, output)
-					continue
-				case "catch":
-					autocomplete("catch", wordsInput[1], knownEntities["wildPokemons"], &inputSlice, &cursorPos, output)
-					continue
-				case "compare":
-					autocomplete("compare", wordsInput[1], knownEntities["pokemons"], &inputSlice, &cursorPos, output)
-					continue
-				default:
-					continue
-				}
-			} else if len(wordsInput) == 3 {
-				switch wordsInput[0] {
-				case "compare":
-					autocomplete("compare "+wordsInput[1], wordsInput[2], knownEntities["pokemons"], &inputSlice, &cursorPos, output)
-					continue
-				default:
-					continue
-				}
-			} else {
-				continue
-			}
-		}
 		inputSlice = append(inputSlice[:cursorPos], append([]rune{char}, inputSlice[cursorPos:]...)...)
 		cursorPos++
 		redrawLine(inputSlice, cursorPos, output)
@@ -216,10 +261,22 @@ func autocomplete(cmd string, strStart string, wordsDict []string, inputSlice *[
 	if len(suggestions) == 1 {
 		newInput += suggestions[0] + " "
 	} else if len(suggestions) > 1 {
-		fmt.Println()
-		for _, suggestion := range suggestions {
-			text.StartFromClearLine(output)
-			fmt.Println(suggestion)
+		columnWidth := max(15, text.LongestWordLength(suggestions)+5)
+		columns := 3
+		var returnNeeded bool = false
+
+		fmt.Fprintln(output)
+		text.StartFromClearLine(output)
+		for i, suggestion := range suggestions {
+			returnNeeded = true
+			fmt.Fprintf(output, "%-*s", columnWidth, suggestion) // Left-align with fixed width
+			if (i+1)%columns == 0 {                              // Move to new line after fixed number of columns
+				returnNeeded = false
+				fmt.Fprint(output, "\n\r")
+			}
+		}
+		if returnNeeded {
+			fmt.Fprintf(output, "\n")
 		}
 		newInput += text.LongestCommonPrefix(suggestions)
 	}

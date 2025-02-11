@@ -14,6 +14,16 @@ func StartFromClearLine(output io.Writer) {
 	fmt.Fprintf(output, "\r\033[K")
 }
 
+func LongestWordLength(words []string) int {
+	max := 0
+	for _, word := range words {
+		if len(word) > max {
+			max = len(word)
+		}
+	}
+	return max
+}
+
 func LongestCommonPrefix(words []string) string {
 	if len(words) == 0 {
 		return ""
