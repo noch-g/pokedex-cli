@@ -40,3 +40,9 @@ func LongestCommonPrefix(words []string) string {
 	}
 	return prefix
 }
+
+func CleanInput(text string) []string {
+	output := strings.ToLower(text)
+	words := strings.Fields(output)
+	return words
+}

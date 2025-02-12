@@ -11,6 +11,7 @@ import (
 	"github.com/noch-g/pokedex-cli/internal/config"
 	"github.com/noch-g/pokedex-cli/internal/logger"
 	"github.com/noch-g/pokedex-cli/internal/pokeapi"
+	"github.com/noch-g/pokedex-cli/internal/text"
 )
 
 type commandTestCase struct {
@@ -153,7 +154,7 @@ func TestCleanInput(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		actual := cleanInput(c.input)
+		actual := text.CleanInput(c.input)
 		if len(actual) != len(c.expected) {
 			t.Errorf("the number of elements did not match, actual: %s, expected: %s", actual, c.expected)
 		}
