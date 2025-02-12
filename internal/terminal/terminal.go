@@ -159,6 +159,8 @@ func ReadInput(reader *bufio.Reader, history *[]string, historyIndex *int, known
 						fmt.Fprintf(output, "\x1b[1D") // Move cursor to the left
 					}
 					continue
+				} else {
+					continue
 				}
 			}
 		}
