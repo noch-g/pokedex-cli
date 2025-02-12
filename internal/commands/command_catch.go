@@ -25,7 +25,13 @@ func commandCatch(cfg *config.Config, output io.Writer, args ...string) error {
 
 	fmt.Fprintf(output, "Throwing a Pokeball at %s... (success chance: %.2f%%)\n", pokemon.Name, successChance)
 	if res > 40 {
-		fmt.Fprintf(output, "%s escaped!\n", pokemon.Name)
+		escapeMessages := []string{
+			"Fail, %s broke free!",
+			"Fail, %s slipped away!",
+			"Fail, %s dodged the Pokéball!",
+			"Fail, %s is too strong and ran away!",
+		}
+		fmt.Fprintf(output, escapeMessages[rand.Intn(len(escapeMessages))]+"\n", pokemon.Name)
 		return nil
 	}
 	fmt.Fprintf(output, "%s was caught! (#%03d)\n", pokemon.Name, pokemon.ID)
