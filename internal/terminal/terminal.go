@@ -218,8 +218,8 @@ func autocomplete(cmd string, strStart string, wordsDict []string, inputSlice *[
 		text.StartFromClearLine(output)
 		for i, suggestion := range suggestions {
 			returnNeeded = true
-			fmt.Fprintf(output, "%-*s", columnWidth, suggestion) // Left-align with fixed width
-			if (i+1)%columns == 0 {                              // Move to new line after fixed number of columns
+			fmt.Fprintf(output, "%-*s", columnWidth, suggestion)
+			if (i+1)%columns == 0 {
 				returnNeeded = false
 				fmt.Fprint(output, "\n\r")
 			}
