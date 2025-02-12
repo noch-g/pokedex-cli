@@ -262,7 +262,7 @@ func autocomplete(cmd string, strStart string, wordsDict []string, inputSlice *[
 		newInput += suggestions[0] + " "
 	} else if len(suggestions) > 1 {
 		columnWidth := max(15, text.LongestWordLength(suggestions)+5)
-		columns := 3
+		columns := 4
 		var returnNeeded bool = false
 
 		fmt.Fprintln(output)

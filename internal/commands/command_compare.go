@@ -25,11 +25,11 @@ func commandCompare(cfg *config.Config, output io.Writer, args ...string) error 
 
 	pokemon1, ok := cfg.CaughtPokemon[pokemonName1]
 	if !ok {
-		return fmt.Errorf("you have not caught a %v yet", pokemonName1)
+		return fmt.Errorf("you have not caught a %v yet. compare only works with caught pokemons", pokemonName1)
 	}
 	pokemon2, ok := cfg.CaughtPokemon[pokemonName2]
 	if !ok {
-		return fmt.Errorf("you have not caught a %v yet", pokemonName2)
+		return fmt.Errorf("you have not caught a %v yet. compare only works with caught pokemons", pokemonName2)
 	}
 
 	img1, err := cfg.PokeapiClient.RenderImage(&pokemon1)
