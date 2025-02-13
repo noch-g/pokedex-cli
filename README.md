@@ -1,3 +1,11 @@
+# pokedex-cli: a Pokédex CLI tool
+
+## What is it?
+
+**pokedex-cli** is an implementation of the guided project [Build a Pokedex in Go](https://www.boot.dev/courses/build-pokedex-cli-golang) from the [boot.dev](https://www.boot.dev) platform.
+
+It is a **CLI tool** that uses the [PokéAPI](https://pokeapi.co/) API to fetch Pokemon-related data. The game within a command line terminal allows you to explore the Pokémon universe, catch Pokémons, and display information about them.
+
 
                                                                                   @     
                                 : :                                             # #     
@@ -39,15 +47,6 @@
                                                       # @ @ #             : : : :       
                                                       # @ @ #               : :         
                                                         # #
-
-
-# pokedex-cli: a Pokédex CLI tool
-
-## What is it?
-
-**pokedex-cli** is an implementation of the guided project [Build a Pokedex in Go](https://www.boot.dev/courses/build-pokedex-cli-golang) from the [boot.dev](https://www.boot.dev) platform.
-
-It is a **CLI tool** that uses the [PokéAPI](https://pokeapi.co/) API to fetch Pokemon-related data. The game within a command line terminal allows you to explore the Pokémon universe, catch Pokémons, and display information about them.
 
 ## Features from the guided tutorial
   - **REPL loop** with prompt to interact with the user
@@ -95,56 +94,6 @@ Pokedex > _
 
   - **Refactoring** of the code into clean packages.
   - Addition of a --debug mode with proper **logging**.
-
-
-                                            @  
-                    ::                      ##  
-        @##@       :::         @####      # #  
-          @###@     :::       @#####@     #  #  
-          @###@    ::       #@@@###     #   #  
-            @#@@#   :       #::@@@#     #    #  
-            @  :#         #:::::#     #     #  
-              # ::#        # :::#     #      @  
-        ::    #:::@######@  ::#     #      #   
-        :::     @#        # :@#     #:     #    
-        ::    #             #       #::::#     
-          :   # #        ##   #       ##:::#    
-            @ # #      # ##  @         #:::#   
-            # ###      ####   #       #::@@@#  
-            @  :#:      :##:   @      #@@@@@#   
-            #@     #        @@  #    #@@@@@#    
-          #@@@            @@ @ @   #@@@@@#     
-          #:@  #  ##   #   @@  :#   #@@@#      
-          #     #@  ##@        :#    #@@#@     
-          ##@               ## ::#     ####@    
-          #@#@             #@@#::@      ####    
-          #@@#  :::::     # @#  ::@      ###    
-          #@  :::::::      #    :#      @##    
-            # :::::::::    #     @#      ##@    
-          @ :::::::::::       @@@@@    ###     
-          # :::::::::::  :   @@@@@#    ###     
-          # ::::::::::: :   @@   :#   @##@   : 
-          # ::::::::::: @        :#   ###   :: 
-          #::::::::::::@        ::#  @##@  ::: 
-        @##@:::::::::::#        :@#  ##@  ::   
-        #@@#:::::::::::#      :@@@#@##@        
-          #@@#::::::::::#:    :::@@##@          
-          #@@#::::::::@#@:  ::::::#@           
-            ##@#@::::@@@@#::::::::@#    :       
-                ##@@@@@# #:::::::#     ::      
-                  #####   #:::::@       ::     
-                            ##@::#       :::    
-                              #@@#      ::::   
-                              #@@#       ::    
-                                ##              
-
-
-
-
-
-
-
-
 
 ## Installation from sources
 
