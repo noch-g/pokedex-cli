@@ -49,11 +49,11 @@ It is a **CLI tool** that uses the [PokéAPI](https://pokeapi.co/) API to fetch 
                                                         # #
 
 ## Features from the guided tutorial
+The following features were added while going through the guided tutorial:
   - **REPL loop** with prompt to interact with the user
 ```sh
 Pokedex > _
 ```
-
 
   - Implementation of a **cache** to remember requests results **within** the current session, with a go routine to automatically **clear** entries older than a given time interval.
   - Implementation of a list of **commands**:
@@ -65,7 +65,8 @@ Pokedex > _
     - **inspect**: display information about a caught Pokémon
     - **pokedex**: list all the Pokémons caught
 
-## New Features added in this project
+## New Features
+The following features were added independently, and are specific to this project:
   - **Persistence** of the cache in between sessions, the entries are saved in a binary file and loaded on program start.
   - **Persistence** of the pokedex entries in between sessions. The pokemons caught and the position on the map are loaded on program start.
   - Add support of **special keys** in the CLI terminal:
