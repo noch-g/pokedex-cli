@@ -10,7 +10,7 @@ const (
 
 var CatchThreshold = map[string]int{
 	"Pokeball":   40,
-	"Superball":  60,
-	"Hyperball":  85,
+	"Greatball":  60,
+	"Ultraball":  80,
 	"Masterball": math.MaxInt,
 }

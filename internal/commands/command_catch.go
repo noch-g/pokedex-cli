@@ -18,10 +18,10 @@ func commandCatch(cfg *config.Config, output io.Writer, args ...string) error {
 	ballType := "Pokeball"
 
 	for _, arg := range args[1:] {
-		if arg == "--super-ball" {
-			ballType = "Superball"
-		} else if arg == "--hyper-ball" {
-			ballType = "Hyperball"
+		if arg == "--great-ball" {
+			ballType = "Greatball"
+		} else if arg == "--ultra-ball" {
+			ballType = "Ultraball"
 		} else if arg == "--master-ball" {
 			ballType = "Masterball"
 		}
