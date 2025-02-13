@@ -80,7 +80,7 @@ The following features were added independently, and are specific to this projec
     - **catch**:
       - On success, the terminal now displays an **ASCII art** of the Pokémon being caught.
       - The **failure message** is now randomnly picked from a list of options, to add variety.
-      - The user can choose to use the **--super-ball**, **--hyper-ball** or **--master-ball** options to increase the success rate of the catch.
+      - The user can choose to use the **--great-ball**, **--ultra-ball** or **--master-ball** options to increase the success rate of the catch.
     - **pokedex**:
       - The output now lists all the pokemons caught in properly **formated columns**, with their **#number**, and with a **???** tag for pokemons that have not been caught yet.
     - **explore**:
