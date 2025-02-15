@@ -91,10 +91,11 @@ The following features were added independently, and are specific to this projec
       - Add the **ASCII art** of the pokemon before showing the stats.
   - **Addition** of new commands:
     - **compare**:
-      - Two pokemons from the pokedex are shown **side by side** in the terminal, both with their **ASCII art** and their **names and stats**.
+      - Two pokemons from the pokedex are shown **side by side** in the terminal, both with their **ASCII art** and their **names** and **stats**.
 
-  - **Refactoring** of the code into clean packages.
-  - Addition of a --debug mode with proper **logging**.
+  - **Refactoring** of the **code** into clean packages.
+  - **Refactoring** of the **tests** to be able to simulate user input in the CLI.
+  - Addition of a **--debug** mode with proper **logging**.
 
 ## Installation from sources
 
