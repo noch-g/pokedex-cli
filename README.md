@@ -3,7 +3,8 @@
 ## What is it?
 
 **pokedex-cli** starts with an implementation of the guided project [Build a Pokedex in Go](https://www.boot.dev/courses/build-pokedex-cli-golang) from the [boot.dev](https://www.boot.dev) platform.
-**New features** were then **added** to make the project more personal, more complete and more user-friendly, the distinction between the tutorial features and the new features is made below.
+
+**New features** were then **added** to make the project more personal, more complete and more user-friendly, the distinction between the **tutorial** features and the **new** features is made below.
 
 It is a **CLI tool** that uses the [PokéAPI](https://pokeapi.co/) API to fetch Pokemon-related data. The game within a command line terminal allows you to explore the Pokémon universe, catch Pokémons, and display information about them.
 
